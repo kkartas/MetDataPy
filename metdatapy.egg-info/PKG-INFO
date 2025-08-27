@@ -1,0 +1,64 @@
+Metadata-Version: 2.4
+Name: metdatapy
+Version: 0.0.1
+Summary: Source-agnostic toolkit for ingesting, cleaning, QC, and preparing meteorological time-series data for ML.
+Author: MetDataPy Developers
+License:  MIT License
+        
+         Copyright (c) 2025 MetDataPy
+        
+         Permission is hereby granted, free of charge, to any person obtaining a copy
+         of this software and associated documentation files (the "Software"), to deal
+         in the Software without restriction, including without limitation the rights
+         to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+         copies of the Software, and to permit persons to whom the Software is
+         furnished to do so, subject to the following conditions:
+        
+         The above copyright notice and this permission notice shall be included in all
+         copies or substantial portions of the Software.
+        
+         THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+         IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+         FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+         AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+         LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+         OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+         SOFTWARE.
+        
+        
+        
+Project-URL: homepage, https://github.com/your-org/metdatapy
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pandas>=2.0
+Requires-Dist: numpy>=1.23
+Requires-Dist: pyarrow>=13.0
+Requires-Dist: click>=8.1
+Requires-Dist: pydantic>=2.4
+Requires-Dist: PyYAML>=6.0
+Provides-Extra: ml
+Requires-Dist: scikit-learn>=1.2; extra == "ml"
+Requires-Dist: statsmodels>=0.13; extra == "ml"
+Provides-Extra: extras
+Requires-Dist: xarray>=2023.6.0; extra == "extras"
+Requires-Dist: netCDF4>=1.6; extra == "extras"
+Requires-Dist: cftime>=1.6; extra == "extras"
+Requires-Dist: astral>=3.2; extra == "extras"
+Requires-Dist: holidays>=0.36; extra == "extras"
+Dynamic: license-file
+
+ # MetDataPy
+
+ Source-agnostic toolkit for ingesting, cleaning, QC-flagging, and preparing meteorological time-series data for machine learning.
+
+ Quickstart:
+
+ ```bash
+ pip install -e .
+ mdp ingest detect --csv path/to/file.csv --save mapping.yml
+ mdp ingest apply --csv path/to/file.csv --map mapping.yml --out raw.parquet
+ mdp qc run --in raw.parquet --out clean.parquet --report qc_report.json
+ ```
+
+

@@ -1,0 +1,10 @@
+ cff-version: 1.2.0
+ message: If you use this software, please cite it as below.
+ title: MetDataPy: Meteorological data toolkit for ML
+ authors:
+   - family-names: MetDataPy
+     given-names: Developers
+ version: 0.0.1
+ date-released: 2025-01-01
+
+

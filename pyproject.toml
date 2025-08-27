@@ -1,0 +1,45 @@
+ [build-system]
+ requires = ["setuptools>=68", "wheel"]
+ build-backend = "setuptools.build_meta"
+
+ [project]
+ name = "metdatapy"
+ version = "0.0.1"
+ description = "Source-agnostic toolkit for ingesting, cleaning, QC, and preparing meteorological time-series data for ML."
+ readme = "README.md"
+ authors = [{ name = "MetDataPy Developers" }]
+ license = { file = "LICENSE" }
+ requires-python = ">=3.9"
+ dependencies = [
+   "pandas>=2.0",
+   "numpy>=1.23",
+   "pyarrow>=13.0",
+   "click>=8.1",
+   "pydantic>=2.4",
+   "PyYAML>=6.0",
+ ]
+
+ [project.optional-dependencies]
+ ml = [
+   "scikit-learn>=1.2",
+   "statsmodels>=0.13",
+ ]
+ extras = [
+   "xarray>=2023.6.0",
+   "netCDF4>=1.6",
+   "cftime>=1.6",
+   "astral>=3.2",
+   "holidays>=0.36",
+ ]
+
+ [project.urls]
+ homepage = "https://github.com/your-org/metdatapy"
+
+ [project.scripts]
+ mdp = "metdatapy.cli:main"
+
+ [tool.pytest.ini_options]
+ addopts = "-q"
+ testpaths = ["tests"]
+
+
