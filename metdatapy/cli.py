@@ -141,3 +141,17 @@
          click.echo(f"Saved report to {report_path}")
 
 
+ @ingest.command("template")
+ @click.option("--out", "out_path", required=False, type=click.Path(dir_okay=False))
+ @click.option("--minimal", is_flag=True, help="Exclude optional fields from template")
+ def ingest_template(out_path: str | None, minimal: bool):
+     from .mapper import Mapper
+     tpl = Mapper.template(include_optional=not minimal)
+     s = json.dumps(tpl, indent=2)
+     if out_path:
+         Path(out_path).write_text(s, encoding="utf-8")
+         click.echo(f"Wrote mapping template to {out_path}")
+     else:
+         click.echo(s)
+
+

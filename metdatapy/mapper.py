@@ -53,6 +53,17 @@ class Mapper:
         with open(path, "w", encoding="utf-8") as f:
             yaml.safe_dump(mapping, f, sort_keys=False, allow_unicode=True)
 
+    @staticmethod
+    def template(include_optional: bool = True) -> Dict:
+        fields = list(CANONICAL_FIELDS) if include_optional else [
+            "temp_c", "rh_pct", "pres_hpa", "wspd_ms", "wdir_deg", "gust_ms", "rain_mm"
+        ]
+        return {
+            "version": 1,
+            "ts": {"col": ""},
+            "fields": {v: {"col": "", "unit": ""} for v in fields},
+        }
+
 
 class Detector:
     """Heuristic mapping detector based on column names and unit hints."""

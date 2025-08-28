@@ -13,7 +13,7 @@
    - Mapper/Detector:
      - [x] interactive mapping wizard
      - [x] robust autodetection
-     - [ ] user mapping templates
+     - [x] user mapping templates
    - WeatherSet: insert_missing with robust gap marking; resample/aggregate; fix_accum_rain; calendar_features; add_exogenous
    - Derived: implement heat index and wind chill (alongside dew point, VPD)
    - QC: spike (MAD/z-score), flatline (rolling variance), cross-variable consistency; configurable thresholds; mask/flag propagation
