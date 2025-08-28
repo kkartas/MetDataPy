@@ -14,7 +14,12 @@
      - [x] interactive mapping wizard
      - [x] robust autodetection
      - [x] user mapping templates
-   - WeatherSet: insert_missing with robust gap marking; resample/aggregate; fix_accum_rain; calendar_features; add_exogenous
+   - WeatherSet:
+     - [x] insert_missing with robust gap marking
+     - [x] resample/aggregate
+     - [x] fix_accum_rain
+     - [x] calendar_features
+     - [x] add_exogenous
    - Derived: implement heat index and wind chill (alongside dew point, VPD)
    - QC: spike (MAD/z-score), flatline (rolling variance), cross-variable consistency; configurable thresholds; mask/flag propagation
    - ML prep: make_supervised (lags, rolling, horizons), leakage-safe split, scaling (Standard/MinMax/Robust) with saved params

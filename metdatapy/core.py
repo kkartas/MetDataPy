@@ -85,9 +85,15 @@ class WeatherSet:
         if freq is None:
             return self
         full = pd.date_range(self.df.index.min(), self.df.index.max(), freq=freq, tz="UTC")
+        before = self.df.index
         self.df = self.df.reindex(full)
         self.df.index.name = CANONICAL_INDEX
-        self.df["gap"] = self.df["gap"].fillna(True) if "gap" in self.df.columns else False
+        # Mark gaps: True where index not in original
+        gap_mask = ~self.df.index.isin(before)
+        if "gap" in self.df.columns:
+            self.df["gap"] = self.df["gap"].fillna(gap_mask)
+        else:
+            self.df["gap"] = gap_mask
         return self
 
     def fix_accum_rain(self) -> "WeatherSet":
@@ -95,8 +101,57 @@ class WeatherSet:
             return self
         s = self.df["rain_mm"].astype(float)
         ds = s.diff()
-        ds[ds < 0] = s[s.index.isin(ds[ds < 0].index)]
+        # If negative diff, assume counter reset: use current value as new accumulation for that step
+        reset_idx = ds[ds < 0].index
+        ds.loc[reset_idx] = s.loc[reset_idx]
+        # Negative tiny noise -> clamp to 0
+        ds = ds.clip(lower=0.0)
         self.df["rain_mm"] = ds.fillna(0.0)
+        return self
+
+    def resample(self, rule: str, agg: Optional[dict] = None) -> "WeatherSet":
+        agg = agg or {
+            "temp_c": "mean",
+            "rh_pct": "mean",
+            "pres_hpa": "mean",
+            "wspd_ms": "mean",
+            "wdir_deg": "mean",
+            "gust_ms": "max",
+            "rain_mm": "sum",
+            "solar_wm2": "mean",
+            "uv_index": "max",
+        }
+        grouped = self.df.resample(rule)
+        out = grouped.agg(agg)
+        # Propagate gap as True if any gap in period
+        if "gap" in self.df.columns:
+            out["gap"] = grouped["gap"].max()
+        self.df = out
+        self.df.index = self.df.index.tz_convert("UTC") if self.df.index.tz is not None else self.df.index.tz_localize("UTC")
+        self.df.index.name = CANONICAL_INDEX
+        return self
+
+    def calendar_features(self, cyclical: bool = True) -> "WeatherSet":
+        idx = self.df.index.tz_convert("UTC") if self.df.index.tz is not None else self.df.index.tz_localize("UTC")
+        self.df["hour"] = idx.hour
+        self.df["weekday"] = idx.weekday
+        self.df["month"] = idx.month
+        if cyclical:
+            import numpy as np
+            self.df["hour_sin"] = np.sin(2 * np.pi * self.df["hour"] / 24.0)
+            self.df["hour_cos"] = np.cos(2 * np.pi * self.df["hour"] / 24.0)
+            self.df["doy"] = idx.dayofyear
+            self.df["doy_sin"] = np.sin(2 * np.pi * self.df["doy"] / 365.25)
+            self.df["doy_cos"] = np.cos(2 * np.pi * self.df["doy"] / 365.25)
+        return self
+
+    def add_exogenous(self, exo: pd.DataFrame, how: str = "left") -> "WeatherSet":
+        # exo should have time index in UTC or tz-aware
+        if exo.index.tz is None:
+            exo.index = exo.index.tz_localize("UTC")
+        else:
+            exo.index = exo.index.tz_convert("UTC")
+        self.df = self.df.join(exo, how=how)
         return self
 
     def qc_range(self) -> "WeatherSet":
