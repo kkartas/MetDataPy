@@ -11,4 +11,10 @@
  mdp qc run --in raw.parquet --out clean.parquet --report qc_report.json
  ```
 
+Documentation
+- Build with MkDocs (optional):
+  - Install: `python -m pip install mkdocs`
+  - Serve: `mkdocs serve`
+  - Build: `mkdocs build`
+
 

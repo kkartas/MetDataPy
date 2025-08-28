@@ -1,0 +1,23 @@
+site_name: MetDataPy
+site_description: Source-agnostic toolkit for meteorological time-series data
+site_url: ""
+repo_url: "https://github.com/your-org/metdatapy"
+theme:
+  name: mkdocs
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - CLI: cli.md
+  - Canonical Schema: schema.md
+  - Mapper & Detector: mapper.md
+  - WeatherSet: weatherset.md
+  - Quality Control: qc.md
+  - Derived Metrics: derive.md
+  - ML Prep (planned): mlprep.md
+  - Export & Manifest (planned): export.md
+  - Manifest (planned): manifest.md
+markdown_extensions:
+  - toc:
+      permalink: true
+  - admonition
+  - tables
