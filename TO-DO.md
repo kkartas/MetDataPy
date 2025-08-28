@@ -12,7 +12,7 @@
  - Core functionality completeness
    - Mapper/Detector:
      - [x] interactive mapping wizard
-     - [ ] robust autodetection
+     - [x] robust autodetection
      - [ ] user mapping templates
    - WeatherSet: insert_missing with robust gap marking; resample/aggregate; fix_accum_rain; calendar_features; add_exogenous
    - Derived: implement heat index and wind chill (alongside dew point, VPD)
