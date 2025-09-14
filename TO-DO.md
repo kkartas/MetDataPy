@@ -1,13 +1,13 @@
  ### JOSS-readiness feature checklist
 
  - Documentation
-   - API reference (Sphinx or MkDocs) published (e.g., GitHub Pages)
-   - Expanded README: installation, quickstart, Statement of Need, citation, roadmap
-   - Canonical schema reference: variables, units, flags, metadata
-   - QC algorithms: definitions, parameters, examples, caveats
-   - CLI reference for all commands and options
-   - Tutorials/notebooks for ingestion, QC, ML prep, export
-   - Changelog and versioning policy (SemVer)
+   - [x] API reference (MkDocs scaffold)
+   - [x] Expanded README: installation, quickstart, docs link
+   - [x] Canonical schema reference: variables, units, flags, metadata
+   - [x] QC algorithms: definitions and parameters
+   - [x] CLI reference for implemented commands
+   - [x] Tutorials/quickstart for ingestion, QC, ML prep
+   - [ ] Changelog and versioning policy (SemVer)
 
  - Core functionality completeness
    - Mapper/Detector:
@@ -25,8 +25,17 @@
      - [x] VPD
      - [x] heat index
      - [x] wind chill
-   - QC: spike (MAD/z-score), flatline (rolling variance), cross-variable consistency; configurable thresholds; mask/flag propagation
-   - ML prep: make_supervised (lags, rolling, horizons), leakage-safe split, scaling (Standard/MinMax/Robust) with saved params
+   - QC:
+     - [x] spike (MAD/z-score)
+     - [x] flatline (rolling variance)
+     - [x] cross-variable consistency
+     - [x] configurable thresholds (CLI --config)
+     - [x] mask/flag propagation (resample qc_* any, qc_any)
+   - ML prep:
+     - [x] make_supervised (lags, horizons)
+     - [x] leakage-safe split (time_split)
+     - [x] scaling (Standard/MinMax/Robust)
+     - [ ] save/attach scaler params in manifest
    - Export: Parquet manifest.json (features/targets/scalers/provenance); NetCDF (CF-compliant) with ACDD metadata
 
  - Reproducibility and provenance
