@@ -17,4 +17,25 @@ Documentation
   - Serve: `mkdocs serve`
   - Build: `mkdocs build`
 
+Quality Control (new)
+- Range checks with boolean flags (`qc_<var>_range`)
+- Spike detection (rolling MAD z-score) and flatline detection (rolling variance)
+- Cross-variable consistency checks with aggregate `qc_any`
+- CLI supports a config file for thresholds:
+
+```bash
+mdp qc run --in raw.parquet --out clean.parquet \
+  --config qc_config.yml --report qc_report.json
+```
+
+Example `qc_config.yml`:
+```yaml
+spike:
+  window: 9
+  thresh: 6.0
+flatline:
+  window: 5
+  tol: 0.0
+```
+
 

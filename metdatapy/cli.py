@@ -125,14 +125,32 @@
  @click.option("--in", "in_path", required=True, type=click.Path(exists=True, dir_okay=False))
  @click.option("--out", "out_path", required=True, type=click.Path(dir_okay=False))
  @click.option("--report", "report_path", required=False, type=click.Path(dir_okay=False))
- def qc_run(in_path: str, out_path: str, report_path: str | None):
+ @click.option("--config", "config_path", required=False, type=click.Path(exists=True, dir_okay=False), help="YAML/JSON thresholds for QC")
+ def qc_run(in_path: str, out_path: str, report_path: str | None, config_path: str | None):
      df = pd.read_parquet(in_path)
-     ws = WeatherSet(df).qc_range()
+     ws = WeatherSet(df)
+     cfg = None
+     if config_path:
+         text = Path(config_path).read_text(encoding="utf-8")
+         try:
+             import yaml as _yaml
+             cfg = _yaml.safe_load(text)
+         except Exception:
+             try:
+                 cfg = json.loads(text)
+             except Exception:
+                 cfg = None
+     ws = ws.qc_range()
+     from .qc import qc_spike as _sp, qc_flatline as _fl
+     sp = cfg.get("spike", {}) if isinstance(cfg, dict) else {}
+     fl = cfg.get("flatline", {}) if isinstance(cfg, dict) else {}
+     ws.df = _sp(ws.df, window=int(sp.get("window", 9)), thresh=float(sp.get("thresh", 6.0)))
+     ws.df = _fl(ws.df, window=int(fl.get("window", 5)), tol=float(fl.get("tol", 0.0)))
+     ws = ws.qc_consistency()
      out_df = ws.to_dataframe()
      out_df.to_parquet(out_path)
      click.echo(f"Wrote {out_path}")
      if report_path:
-         # Minimal report: counts of range flags
          report = {}
          for col in out_df.columns:
              if col.startswith("qc_"):

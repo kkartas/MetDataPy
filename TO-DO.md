@@ -20,7 +20,11 @@
      - [x] fix_accum_rain
      - [x] calendar_features
      - [x] add_exogenous
-   - Derived: implement heat index and wind chill (alongside dew point, VPD)
+   - Derived:
+     - [x] dew point
+     - [x] VPD
+     - [x] heat index
+     - [x] wind chill
    - QC: spike (MAD/z-score), flatline (rolling variance), cross-variable consistency; configurable thresholds; mask/flag propagation
    - ML prep: make_supervised (lags, rolling, horizons), leakage-safe split, scaling (Standard/MinMax/Robust) with saved params
    - Export: Parquet manifest.json (features/targets/scalers/provenance); NetCDF (CF-compliant) with ACDD metadata
@@ -109,4 +113,77 @@
  - Post-acceptance
    - Add JOSS status badge and citation to README once accepted
 
+
+
+## Additional JOSS-ready enhancements (detailed checklist)
+
+- Documentation and scientific rigor
+  - [ ] Add literature references for formulas (Magnus, Tetens, Rothfusz, wind chill)
+  - [ ] Statement of Need and comparison to related tools (MetPy, xarray, tsfresh)
+  - [ ] Reproducibility guide: seeds, pinned deps, env export, deterministic ops
+
+- Data sources and adapters
+  - [ ] NOAA ISD/ASOS reader (CSV/API)
+  - [ ] ERA5/ERA5-Land reanalysis adapter
+  - [ ] Weathercloud/Weather Underground CSV variants
+  - [ ] Metadata capture: station coords/elevation/source version
+
+- QC advancements
+  - [ ] Spike detection (rolling MAD/z-score)
+  - [ ] Step-change/stuck sensor detection
+  - [ ] Flatline via rolling variance
+  - [ ] Cross-variable consistency (Td ≤ T; wspd≈0 ⇒ wdir NA; UV↔Solar bounds)
+  - [ ] Configurable thresholds and rule toggles
+  - [ ] Consolidated QC score and HTML report with plots
+
+- Gap handling and imputation
+  - [ ] Forward-fill with window; linear/spline; KNN
+  - [ ] Seasonal naïve and STL-based residual imputation
+  - [ ] Imputation flags and method provenance
+  - [ ] Time-safe (train-only) imputation pipelines
+
+- Derived metrics expansion
+  - [ ] Wet-bulb temperature (Stull)
+  - [ ] Saturation deficit / enthalpy
+  - [ ] u/v wind components
+  - [ ] Growing Degree Days; solar zenith/extraterrestrial radiation
+
+- ML/AI readiness
+  - [ ] Time-safe splitters (expanding/rolling window CV, blocked CV)
+  - [ ] Robust lag/rolling builder with alignment checks
+  - [ ] Holiday and astral feature generators
+  - [ ] sklearn-compatible transformers for mapping/QC/derive/lag
+  - [ ] Supervised window dataset generator (PyTorch/TF ready)
+
+- Evaluation and benchmarks
+  - [ ] Baselines (persistence, seasonal naïve)
+  - [ ] Metrics (MAE/RMSE/SMAPE/CRPS)
+  - [ ] Backtesting harness and example notebooks
+
+- Export and standards
+  - [ ] CF-compliant NetCDF variable attrs (units, standard_name)
+  - [ ] ACDD global metadata; cf-checker validation
+  - [ ] Manifest schema versioning and mdp manifest validate
+
+- Performance and scale
+  - [ ] Optional dask/polars backend
+  - [ ] Chunked ingest; Parquet partitioning guidance
+  - [ ] Benchmarks and memory profiling docs
+
+- Extensibility and governance
+  - [ ] Plugin API for QC rules/derivations/ingest adapters
+  - [ ] Config-driven pipelines (YAML) runnable via mdp run
+  - [ ] CONTRIBUTING.md, CODE_OF_CONDUCT.md, issue/PR templates
+
+- CI and quality gates
+  - [ ] Build docs warning-free in CI; publish to Pages
+  - [ ] Coverage badge; mypy/ruff/bandit checks
+
+- Archival and citation
+  - [ ] Zenodo DOI per release, linked in README
+  - [ ] License-compatible sample datasets for tests/tutorials
+
+- Reliability and ops
+  - [ ] Structured JSON logs and error codes
+  - [ ] Robust timezone/DST tests and guidance
 

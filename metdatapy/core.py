@@ -126,6 +126,13 @@ class WeatherSet:
         # Propagate gap as True if any gap in period
         if "gap" in self.df.columns:
             out["gap"] = grouped["gap"].max()
+        # Propagate qc_* flags as any over window
+        for col in self.df.columns:
+            if isinstance(col, str) and col.startswith("qc_"):
+                try:
+                    out[col] = grouped[col].max()
+                except Exception:
+                    pass
         self.df = out
         self.df.index = self.df.index.tz_convert("UTC") if self.df.index.tz is not None else self.df.index.tz_localize("UTC")
         self.df.index.name = CANONICAL_INDEX
@@ -159,12 +166,19 @@ class WeatherSet:
         return self
 
     def qc_spike(self) -> "WeatherSet":
+        from .qc import qc_spike
+        self.df = qc_spike(self.df)
         return self
 
     def qc_flatline(self) -> "WeatherSet":
+        from .qc import qc_flatline
+        self.df = qc_flatline(self.df)
         return self
 
     def qc_consistency(self) -> "WeatherSet":
+        from .qc import qc_consistency, qc_any
+        self.df = qc_consistency(self.df)
+        self.df = qc_any(self.df)
         return self
 
     def to_dataframe(self) -> pd.DataFrame:
@@ -175,6 +189,12 @@ class WeatherSet:
             self.df["dew_point_c"] = dew_point_c(self.df["temp_c"], self.df["rh_pct"]).astype(float)
         if "vpd" in metrics and {"temp_c", "rh_pct"}.issubset(self.df.columns):
             self.df["vpd_kpa"] = vpd_kpa(self.df["temp_c"], self.df["rh_pct"]).astype(float)
+        if "heat_index" in metrics and {"temp_c", "rh_pct"}.issubset(self.df.columns):
+            from .derive import heat_index_c
+            self.df["heat_index_c"] = heat_index_c(self.df["temp_c"], self.df["rh_pct"]).astype(float)
+        if "wind_chill" in metrics and {"temp_c", "wspd_ms"}.issubset(self.df.columns):
+            from .derive import wind_chill_c
+            self.df["wind_chill_c"] = wind_chill_c(self.df["temp_c"], self.df["wspd_ms"]).astype(float)
         return self
 
 
