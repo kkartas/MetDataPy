@@ -103,7 +103,7 @@ class Detector:
             except Exception:
                 continue
             parse_frac = float(dt.notna().mean())
-            mono_bonus = 0.2 if dt.is_monotonic_increasing or dt.is_monotonic else 0.0
+            mono_bonus = 0.2 if dt.is_monotonic_increasing else 0.0
             score = name_hint + 0.6 * parse_frac + mono_bonus
             if score > best_ts_score:
                 best_ts_score = score

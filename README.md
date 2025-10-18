@@ -70,6 +70,26 @@ scaler = fit_scaler(splits["train"], method="standard")
 train_scaled = apply_scaler(splits["train"], scaler)
 ```
 
+## Examples
+
+See the `examples/` directory for:
+- **`metdatapy_tutorial.ipynb`** - Publication-quality Jupyter notebook with visualizations and scientific references
+- **`complete_workflow.py`** - Automated Python script for batch processing
+- **`README.md`** - Detailed usage guide
+- Sample weather data in `data/sample_weather_2024.csv`
+
+Run the interactive tutorial:
+```bash
+cd examples
+jupyter notebook metdatapy_tutorial.ipynb
+```
+
+Or run the automated workflow:
+```bash
+cd examples
+python complete_workflow.py
+```
+
 ## Citation
 
 If you use MetDataPy in your research, please cite it:

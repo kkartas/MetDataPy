@@ -1,0 +1,40 @@
+version: 1
+ts:
+  col: DateTime
+fields:
+  temp_c:
+    col: Temperature (°F)
+    unit: F
+    confidence: 1.2
+  rh_pct:
+    col: Relative Humidity (%)
+    unit: null
+    confidence: 1.1
+  pres_hpa:
+    col: Pressure (mbar)
+    unit: mbar
+    confidence: 1.2
+  wspd_ms:
+    col: Wind Speed (mph)
+    unit: mph
+    confidence: 1.2
+  wdir_deg:
+    col: Wind Direction (°)
+    unit: null
+    confidence: 1.1
+  gust_ms:
+    col: Wind Gust (mph)
+    unit: mph
+    confidence: 1.2
+  rain_mm:
+    col: Rainfall (mm)
+    unit: mm
+    confidence: 1.2
+  solar_wm2:
+    col: Solar Radiation (W/m²)
+    unit: null
+    confidence: 1.1
+  uv_index:
+    col: UV Index
+    unit: null
+    confidence: 1.1

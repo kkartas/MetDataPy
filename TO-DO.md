@@ -191,7 +191,8 @@
 - Archival and citation
   - [x] CITATION.cff complete and validated
   - [ ] Zenodo DOI per release, linked in README
-  - [ ] License-compatible sample datasets for tests/tutorials
+  - [x] License-compatible sample datasets for tests/tutorials
+  - [x] Publication-quality Jupyter notebook with visualizations and scientific references
 
 - Reliability and ops
   - [ ] Structured JSON logs and error codes
