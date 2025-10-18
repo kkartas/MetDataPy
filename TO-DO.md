@@ -207,6 +207,8 @@
 
 - Archival and citation
   - [x] CITATION.cff complete and validated
+  - [x] JOSS paper.md with proper citations and bibliography
+  - [x] JOSS paper CI workflow for PDF generation
   - [ ] Zenodo DOI per release, linked in README
   - [x] License-compatible sample datasets for tests/tutorials
   - [x] Publication-quality Jupyter notebook with visualizations and scientific references

@@ -1,0 +1,42 @@
+name: Draft PDF
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  paper:
+    name: Build JOSS Paper
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Build draft PDF
+        uses: openjournals/openjournals-draft-action@master
+        with:
+          journal: joss
+          paper-path: paper.md
+      
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper
+          path: paper.pdf
+      
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: |
+            paper.log
+            paper.err
+
