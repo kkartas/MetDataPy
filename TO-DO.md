@@ -7,6 +7,7 @@
    - [x] QC algorithms: definitions and parameters
    - [x] CLI reference for implemented commands
    - [x] Tutorials/quickstart for ingestion, QC, ML prep
+   - [x] Read the Docs setup with automatic builds
    - [ ] Changelog and versioning policy (SemVer)
 
  - Core functionality completeness
@@ -197,7 +198,7 @@
   - [x] CONTRIBUTING.md, CODE_OF_CONDUCT.md, issue/PR templates
 
 - CI and quality gates
-  - [x] Build docs warning-free in CI; publish to Pages
+  - [x] Build docs warning-free in CI; deploy to Read the Docs
   - [x] Coverage badge and reporting (Codecov)
   - [x] Multi-OS testing (Linux, macOS, Windows)
   - [x] Linting checks (ruff/black/isort/mypy)

@@ -1,7 +1,7 @@
 # MetDataPy
 
 [![CI](https://github.com/kkartas/MetDataPy/actions/workflows/ci.yml/badge.svg)](https://github.com/kkartas/MetDataPy/actions/workflows/ci.yml)
-[![Documentation](https://github.com/kkartas/MetDataPy/actions/workflows/docs.yml/badge.svg)](https://github.com/kkartas/MetDataPy/actions/workflows/docs.yml)
+[![Documentation Status](https://readthedocs.org/projects/metdatapy/badge/?version=latest)](https://metdatapy.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/kkartas/MetDataPy/branch/main/graph/badge.svg)](https://codecov.io/gh/kkartas/MetDataPy)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -21,11 +21,16 @@ mdp qc run --in raw.parquet --out clean.parquet --report qc_report.json \
 Statement of Need
 Modern ML pipelines require clean, unit-consistent, well-flagged meteorological time series. MetDataPy provides a canonical schema, robust ingestion (with autodetection and an interactive mapping wizard), quality control, derived metrics, time-safe ML preparation, and reproducible exports.
 
-Documentation
-- Build with MkDocs (optional):
-  - Install: `python -m pip install mkdocs`
-  - Serve: `mkdocs serve`
-  - Build: `mkdocs build`
+## Documentation
+
+Full documentation is available on **[Read the Docs](https://metdatapy.readthedocs.io/)**.
+
+To build documentation locally:
+```bash
+pip install -r docs/requirements.txt
+mkdocs serve
+# Then open http://localhost:8000
+```
 
 Features
 - Canonical schema with UTC index and metric units

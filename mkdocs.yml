@@ -1,9 +1,33 @@
 site_name: MetDataPy
 site_description: Source-agnostic toolkit for meteorological time-series data
-site_url: ""
-repo_url: "https://github.com/your-org/metdatapy"
+site_url: https://metdatapy.readthedocs.io/
+repo_url: https://github.com/kkartas/MetDataPy
+repo_name: kkartas/MetDataPy
+edit_uri: edit/main/docs/
+
 theme:
-  name: mkdocs
+  name: material
+  palette:
+    - scheme: default
+      primary: blue
+      accent: light-blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: blue
+      accent: light-blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
 nav:
   - Home: index.md
   - Quickstart: quickstart.md
@@ -22,3 +46,33 @@ markdown_extensions:
       permalink: true
   - admonition
   - tables
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.arithmatex:
+      generic: true
+  - attr_list
+  - md_in_html
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: false
+            members_order: source
+
+extra_javascript:
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

@@ -4,7 +4,7 @@ This document describes the Continuous Integration and Continuous Deployment set
 
 ## Overview
 
-MetDataPy uses GitHub Actions for CI/CD with multiple workflows to ensure code quality, test coverage, and documentation integrity.
+MetDataPy uses GitHub Actions for CI/CD with multiple workflows to ensure code quality, test coverage, and documentation integrity. Documentation is hosted on Read the Docs with automatic builds on every commit.
 
 ## Workflows
 
@@ -42,6 +42,7 @@ MetDataPy uses GitHub Actions for CI/CD with multiple workflows to ensure code q
   - Builds with `--strict` flag (warnings as errors)
   - Checks for broken links with `linkchecker`
 - **Output:** Static site in `site/` directory
+- **Deployment:** Documentation is automatically built and deployed to Read the Docs on push to main/master
 
 #### Integration Job
 - **End-to-End Testing:**
@@ -191,11 +192,25 @@ Areas needing more tests:
 - `metdatapy/mlprep.py` (0% → target 70%)
 - `metdatapy/utils.py` (48.28% → target 70%)
 
-## GitHub Pages Setup
+## Read the Docs Setup
 
-1. Go to repository Settings → Pages
-2. Source: GitHub Actions
-3. Documentation will be published to: `https://kkartas.github.io/MetDataPy/`
+Documentation is hosted on Read the Docs with automatic builds.
+
+### Configuration Files
+
+- `.readthedocs.yml` - Read the Docs build configuration
+- `docs/requirements.txt` - Documentation dependencies
+- `mkdocs.yml` - MkDocs site configuration
+
+### Setup Instructions
+
+See `.github/READTHEDOCS_SETUP.md` for detailed setup instructions.
+
+### Documentation URLs
+
+- **Latest (main branch):** https://metdatapy.readthedocs.io/en/latest/
+- **Stable (latest release):** https://metdatapy.readthedocs.io/en/stable/
+- **Build Status:** Check Read the Docs dashboard
 
 ## Troubleshooting
 
