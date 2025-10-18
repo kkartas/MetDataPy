@@ -9,18 +9,30 @@ include .coveragerc
 recursive-include metdatapy *.py
 recursive-include tests *.py
 recursive-include docs *.md
-recursive-include data *.csv *.yml *.yaml *.py README.md
+
+# Exclude data directory from package (used for examples only)
+prune data
+prune examples
 
 exclude .gitignore
 exclude TO-DO.md
 exclude mkdocs.yml
+exclude .github
 
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
+recursive-exclude * *.pyc
+recursive-exclude * *.pyo
 recursive-exclude * .DS_Store
-recursive-exclude site *
-recursive-exclude htmlcov *
-recursive-exclude .pytest_cache *
-recursive-exclude .mypy_cache *
-recursive-exclude .ruff_cache *
+recursive-exclude * *.so
+recursive-exclude * *.dylib
+prune site
+prune htmlcov
+prune .pytest_cache
+prune .mypy_cache
+prune .ruff_cache
+prune .coverage
+prune dist
+prune build
+prune *.egg-info
 
