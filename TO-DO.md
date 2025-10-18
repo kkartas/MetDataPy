@@ -57,27 +57,31 @@
    - Unit/autodetection from headers and metadata; timezone handling and DST resilience
    - CF mapping and xarray integration for NetCDF export
 
- - Validation and testing
-   - High-coverage unit tests; end-to-end pipeline tests on sample data
-   - Property-based tests for QC invariants (e.g., dew point ≤ temp)
-   - Golden datasets and expected manifests for regression
-   - Cross-platform CI (Linux/macOS/Windows), multiple Python versions
-   - Coverage reports and badge
+- Validation and testing
+  - [x] High-coverage unit tests (63% coverage)
+  - [x] End-to-end integration tests on sample data
+  - [ ] Property-based tests for QC invariants (e.g., dew point ≤ temp)
+  - [ ] Golden datasets and expected manifests for regression
+  - [x] Cross-platform CI (Linux/macOS/Windows), multiple Python versions
+  - [x] Coverage reports and badge (Codecov integration)
 
  - Packaging and distribution
    - PyPI wheels (sdist + manylinux/macOS/Windows); dependency constraints
    - Optional conda-forge recipe
    - Release automation on tags; version bumping workflow
 
- - Code quality and maintenance
-   - Linters (ruff/flake8), formatter (black), type-checking (mypy)
-   - Pre-commit hooks; CONTRIBUTING.md; CODE_OF_CONDUCT.md
-   - Issue/PR templates; governance/maintenance plan
+- Code quality and maintenance
+  - [x] Linters (ruff), formatter (black), type-checking (mypy) configured
+  - [x] CI integration for linting and code quality checks
+  - [ ] Pre-commit hooks
+  - [x] CONTRIBUTING.md; CODE_OF_CONDUCT.md
+  - [x] Issue/PR templates
+  - [ ] Governance/maintenance plan
 
 - Archival and citation
   - [ ] Zenodo archival with DOI per release, linked in README
   - [x] CITATION.cff complete and validated
-  - [ ] Badges: CI, coverage, PyPI, DOI
+  - [x] Badges: CI, coverage, Python version, License
 
  - Performance and scalability
    - Vectorized operations; memory-efficient ingest (pyarrow); optional chunking
@@ -186,11 +190,15 @@
 - Extensibility and governance
   - [ ] Plugin API for QC rules/derivations/ingest adapters
   - [ ] Config-driven pipelines (YAML) runnable via mdp run
-  - [ ] CONTRIBUTING.md, CODE_OF_CONDUCT.md, issue/PR templates
+  - [x] CONTRIBUTING.md, CODE_OF_CONDUCT.md, issue/PR templates
 
 - CI and quality gates
-  - [ ] Build docs warning-free in CI; publish to Pages
-  - [ ] Coverage badge; mypy/ruff/bandit checks
+  - [x] Build docs warning-free in CI; publish to Pages
+  - [x] Coverage badge and reporting (Codecov)
+  - [x] Multi-OS testing (Linux, macOS, Windows)
+  - [x] Linting checks (ruff/black/isort/mypy)
+  - [x] Integration tests in CI
+  - [ ] Security scanning (bandit)
 
 - Archival and citation
   - [x] CITATION.cff complete and validated
