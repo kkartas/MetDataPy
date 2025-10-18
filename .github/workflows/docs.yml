@@ -47,6 +47,9 @@ jobs:
 
   deploy:
     name: Deploy to GitHub Pages
+    # Only deploy on push to main/master (not on PRs)
+    # Note: GitHub Pages must be enabled in repository settings first
+    # See .github/GITHUB_PAGES_SETUP.md for instructions
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     needs: build
     runs-on: ubuntu-latest
@@ -59,4 +62,5 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true  # Don't fail if Pages isn't enabled yet
 

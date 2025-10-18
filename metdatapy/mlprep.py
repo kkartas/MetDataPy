@@ -54,49 +54,53 @@ def time_split(
 @dataclass
 class ScalerParams:
     method: str
-    params: Dict[str, Tuple[float, float, float]]  # col -> (center, scale, iqr or min/max)
+    columns: List[str]
+    parameters: Dict[str, Dict[str, float]]  # col -> {mean/min/median, scale/iqr, ...}
 
 
 def fit_scaler(df: pd.DataFrame, method: str = "standard", columns: Optional[List[str]] = None) -> ScalerParams:
     cols = columns or [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
-    params: Dict[str, Tuple[float, float, float]] = {}
+    params: Dict[str, Dict[str, float]] = {}
     if method == "standard":
         for c in cols:
             mu = float(df[c].mean())
             sigma = float(df[c].std(ddof=0)) or 1.0
-            params[c] = (mu, sigma, 0.0)
+            params[c] = {"mean": mu, "scale": sigma}
     elif method == "minmax":
         for c in cols:
             vmin = float(df[c].min())
             vmax = float(df[c].max())
             scale = (vmax - vmin) or 1.0
-            params[c] = (vmin, scale, 0.0)
+            params[c] = {"min": vmin, "scale": scale}
     elif method == "robust":
         for c in cols:
             med = float(df[c].median())
             q1 = float(df[c].quantile(0.25))
             q3 = float(df[c].quantile(0.75))
             iqr = (q3 - q1) or 1.0
-            params[c] = (med, iqr, 0.0)
+            params[c] = {"median": med, "iqr": iqr}
     else:
         raise ValueError(f"Unknown scaling method: {method}")
-    return ScalerParams(method=method, params=params)
+    return ScalerParams(method=method, columns=cols, parameters=params)
 
 
 def apply_scaler(df: pd.DataFrame, scaler: ScalerParams) -> pd.DataFrame:
     out = df.copy()
     if scaler.method == "standard":
-        for c, (mu, sigma, _) in scaler.params.items():
-            if c in out.columns:
-                out[c] = (out[c] - mu) / sigma
+        for c in scaler.columns:
+            if c in out.columns and c in scaler.parameters:
+                params = scaler.parameters[c]
+                out[c] = (out[c] - params["mean"]) / params["scale"]
     elif scaler.method == "minmax":
-        for c, (vmin, scale, _) in scaler.params.items():
-            if c in out.columns:
-                out[c] = (out[c] - vmin) / scale
+        for c in scaler.columns:
+            if c in out.columns and c in scaler.parameters:
+                params = scaler.parameters[c]
+                out[c] = (out[c] - params["min"]) / params["scale"]
     elif scaler.method == "robust":
-        for c, (med, iqr, _) in scaler.params.items():
-            if c in out.columns:
-                out[c] = (out[c] - med) / iqr
+        for c in scaler.columns:
+            if c in out.columns and c in scaler.parameters:
+                params = scaler.parameters[c]
+                out[c] = (out[c] - params["median"]) / params["iqr"]
     else:
         raise ValueError(f"Unknown scaling method: {scaler.method}")
     return out

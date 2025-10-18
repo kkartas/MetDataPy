@@ -13,9 +13,9 @@ nav:
   - WeatherSet: weatherset.md
   - Quality Control: qc.md
   - Derived Metrics: derive.md
-  - ML Prep (planned): mlprep.md
-  - Export & Manifest (planned): export.md
-  - Manifest (planned): manifest.md
+  - ML Prep: mlprep.md
+  - Export Formats: export.md
+  - Manifest & Reproducibility: manifest.md
 markdown_extensions:
   - toc:
       permalink: true

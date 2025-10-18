@@ -35,16 +35,18 @@
     - [x] make_supervised (lags, horizons)
     - [x] leakage-safe split (time_split)
     - [x] scaling (Standard/MinMax/Robust)
-    - [ ] save/attach scaler params in manifest
+    - [x] save/attach scaler params in manifest
   - Export:
     - [x] Parquet export
     - [x] NetCDF (CF-compliant) with metadata
-    - [ ] manifest.json (features/targets/scalers/provenance)
+    - [x] manifest.json (features/targets/scalers/provenance)
 
- - Reproducibility and provenance
-   - Manifest schema (pydantic): variables, units, steps, parameters, split boundaries, scaling params
-   - Pipeline audit log with timestamps and a pipeline_hash
-   - Deterministic behavior (fixed seeds), time-safe ops
+- Reproducibility and provenance
+  - [x] Manifest schema (pydantic): variables, units, steps, parameters, split boundaries, scaling params
+  - [x] Pipeline audit log with timestamps and a pipeline_hash
+  - [x] ManifestBuilder for incremental construction
+  - [x] CLI commands: `mdp manifest validate`, `show`, `compare`
+  - [ ] Deterministic behavior (fixed seeds), time-safe ops
 
  - CLI UX and ergonomics
    - mdp derive, mdp ml build, mdp export netcdf commands
