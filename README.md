@@ -70,4 +70,23 @@ scaler = fit_scaler(splits["train"], method="standard")
 train_scaled = apply_scaler(splits["train"], scaler)
 ```
 
+## Citation
+
+If you use MetDataPy in your research, please cite it:
+
+```bibtex
+@software{metdatapy,
+  title = {MetDataPy: A Source-Agnostic Toolkit for Meteorological Time-Series Data},
+  author = {Your Name},
+  year = {2025},
+  url = {https://github.com/your-org/metdatapy},
+  version = {0.0.1}
+}
+```
+
+See `CITATION.cff` for machine-readable citation metadata.
+
+## License
+
+MIT License. See `LICENSE` for details.
 

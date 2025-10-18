@@ -1,10 +1,41 @@
- cff-version: 1.2.0
- message: If you use this software, please cite it as below.
- title: MetDataPy: Meteorological data toolkit for ML
- authors:
-   - family-names: MetDataPy
-     given-names: Developers
- version: 0.0.1
- date-released: 2025-01-01
-
-
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "MetDataPy: A Source-Agnostic Toolkit for Meteorological Time-Series Data"
+abstract: >
+  MetDataPy is a Python package for ingesting, normalizing, quality-controlling,
+  and preparing meteorological time-series data for machine learning applications.
+  It provides a unified canonical schema, robust quality control algorithms,
+  derived meteorological metrics, and ML-ready feature engineering with time-safe
+  data splitting and scaling.
+authors:
+  - family-names: "Kartas"
+    given-names: "Kyriakos"
+    email: mail@kkartas.gr
+    orcid: "https://orcid.org/0009-0001-6477-4676"
+repository-code: "https://github.com/kkartas/MetDataPy"
+url: "https://github.com/kkartas/MetDataPy"
+keywords:
+  - meteorology
+  - weather data
+  - time series
+  - quality control
+  - machine learning
+  - data preprocessing
+  - climate science
+  - atmospheric science
+license: MIT
+version: 0.0.1
+date-released: "2025-10-19"
+# doi: 10.5281/zenodo.XXXXXXX  # Add after Zenodo archival
+# preferred-citation:
+#   type: article
+#   title: "MetDataPy: A Source-Agnostic Toolkit for Meteorological Time-Series Data"
+#   authors:
+#     - family-names: "Your Family Name"
+#       given-names: "Your Given Name"
+#   journal: "Journal of Open Source Software"
+#   year: 2025
+#   volume: XX
+#   issue: XX
+#   doi: 10.21105/joss.XXXXX

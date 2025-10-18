@@ -71,10 +71,10 @@
    - Pre-commit hooks; CONTRIBUTING.md; CODE_OF_CONDUCT.md
    - Issue/PR templates; governance/maintenance plan
 
- - Archival and citation
-   - Zenodo archival with DOI per release, linked in README
-   - CITATION.cff complete and validated
-   - Badges: CI, coverage, PyPI, DOI
+- Archival and citation
+  - [ ] Zenodo archival with DOI per release, linked in README
+  - [x] CITATION.cff complete and validated
+  - [ ] Badges: CI, coverage, PyPI, DOI
 
  - Performance and scalability
    - Vectorized operations; memory-efficient ingest (pyarrow); optional chunking
@@ -189,6 +189,7 @@
   - [ ] Coverage badge; mypy/ruff/bandit checks
 
 - Archival and citation
+  - [x] CITATION.cff complete and validated
   - [ ] Zenodo DOI per release, linked in README
   - [ ] License-compatible sample datasets for tests/tutorials
 
