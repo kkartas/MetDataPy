@@ -16,6 +16,7 @@ nav:
   - ML Prep: mlprep.md
   - Export Formats: export.md
   - Manifest & Reproducibility: manifest.md
+  - Scientific References: references.md
 markdown_extensions:
   - toc:
       permalink: true

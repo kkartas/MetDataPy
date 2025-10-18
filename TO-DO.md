@@ -136,7 +136,9 @@
 ## Additional JOSS-ready enhancements (detailed checklist)
 
 - Documentation and scientific rigor
-  - [ ] Add literature references for formulas (Magnus, Tetens, Rothfusz, wind chill)
+  - [x] Add literature references for formulas (Magnus, Tetens, Rothfusz, wind chill)
+  - [x] Comprehensive docstrings with mathematical formulas and citations
+  - [x] DOI links to peer-reviewed literature
   - [ ] Statement of Need and comparison to related tools (MetPy, xarray, tsfresh)
   - [ ] Reproducibility guide: seeds, pinned deps, env export, deterministic ops
 
