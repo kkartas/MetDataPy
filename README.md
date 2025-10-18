@@ -28,6 +28,7 @@ Features
 - WeatherSet resampling/aggregation, calendar features, exogenous joins
 - Derived: dew point, VPD, heat index, wind chill
 - ML prep: supervised table builder (lags, horizons), time-safe split, scaling (Standard/MinMax/Robust)
+- Export: Parquet and CF-compliant NetCDF with metadata
 
 Quality Control
 - Range checks with boolean flags (`qc_<var>_range`)
@@ -63,6 +64,10 @@ ws = WeatherSet.from_mapping(df, mapping).to_utc().normalize_units(mapping)
 ws = ws.insert_missing().fix_accum_rain().qc_range().qc_spike().qc_flatline().qc_consistency()
 ws = ws.derive(["dew_point", "vpd", "heat_index", "wind_chill"]).resample("1H").calendar_features()
 clean = ws.to_dataframe()
+
+# Export to CF-compliant NetCDF
+ws.to_netcdf("weather_data.nc", metadata={"title": "Weather Station Data"}, 
+             station_metadata={"station_id": "AWS001", "lat": 40.7, "lon": -74.0})
 
 sup = make_supervised(clean, targets=["temp_c"], horizons=[1,3], lags=[1,2,3])
 splits = time_split(sup, train_end=pd.Timestamp("2025-01-15T00:00Z"))

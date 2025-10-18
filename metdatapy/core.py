@@ -183,6 +183,16 @@ class WeatherSet:
 
     def to_dataframe(self) -> pd.DataFrame:
         return self.df
+    
+    def to_netcdf(
+        self,
+        path: str,
+        metadata: Optional[Dict] = None,
+        station_metadata: Optional[Dict] = None,
+    ) -> None:
+        """Export to CF-compliant NetCDF4 file."""
+        from .io import to_netcdf
+        to_netcdf(self.df, path, metadata, station_metadata)
 
     def derive(self, metrics: list[str]) -> "WeatherSet":
         if "dew_point" in metrics and {"temp_c", "rh_pct"}.issubset(self.df.columns):

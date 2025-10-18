@@ -31,12 +31,15 @@
      - [x] cross-variable consistency
      - [x] configurable thresholds (CLI --config)
      - [x] mask/flag propagation (resample qc_* any, qc_any)
-   - ML prep:
-     - [x] make_supervised (lags, horizons)
-     - [x] leakage-safe split (time_split)
-     - [x] scaling (Standard/MinMax/Robust)
-     - [ ] save/attach scaler params in manifest
-   - Export: Parquet manifest.json (features/targets/scalers/provenance); NetCDF (CF-compliant) with ACDD metadata
+  - ML prep:
+    - [x] make_supervised (lags, horizons)
+    - [x] leakage-safe split (time_split)
+    - [x] scaling (Standard/MinMax/Robust)
+    - [ ] save/attach scaler params in manifest
+  - Export:
+    - [x] Parquet export
+    - [x] NetCDF (CF-compliant) with metadata
+    - [ ] manifest.json (features/targets/scalers/provenance)
 
  - Reproducibility and provenance
    - Manifest schema (pydantic): variables, units, steps, parameters, split boundaries, scaling params
@@ -170,8 +173,9 @@
   - [ ] Backtesting harness and example notebooks
 
 - Export and standards
-  - [ ] CF-compliant NetCDF variable attrs (units, standard_name)
-  - [ ] ACDD global metadata; cf-checker validation
+  - [x] CF-compliant NetCDF variable attrs (units, standard_name)
+  - [x] CF-1.8 global metadata (Conventions, featureType, etc.)
+  - [ ] cf-checker validation in CI
   - [ ] Manifest schema versioning and mdp manifest validate
 
 - Performance and scale

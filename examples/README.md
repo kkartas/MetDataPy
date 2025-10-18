@@ -31,6 +31,31 @@ Command-line script for automated processing:
 5. **ML Preparation** - Supervised datasets with lags, time-safe splits, scaling
 6. **Export** - Save to Parquet with reproducible parameters
 
+### 3. NetCDF Export Example (`netcdf_export_example.py`)
+
+Demonstrates CF-compliant NetCDF export:
+
+- **CF Conventions v1.8** - Standard names, units, and metadata
+- **Global Attributes** - Title, institution, source, history, references
+- **Station Metadata** - Coordinates (lat/lon/elevation), station ID
+- **Variable Attributes** - Standard names, long names, units, valid ranges
+- **QC Flags** - Preserved with proper flag meanings
+- **Compression** - zlib level 4, float32 encoding
+
+**Output:** `../data/processed/weather_data_hourly.nc`
+
+**Validation:**
+```bash
+# Install CF checker
+pip install cfchecker
+
+# Validate CF compliance
+cfchecks ../data/processed/weather_data_hourly.nc
+
+# Inspect with ncdump
+ncdump -h ../data/processed/weather_data_hourly.nc
+```
+
 ### Running the Example
 
 ```bash
