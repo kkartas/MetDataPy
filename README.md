@@ -90,21 +90,17 @@ train_scaled = apply_scaler(splits["train"], scaler)
 
 See the `examples/` directory for:
 
-**Jupyter Notebooks:**
-- **`metdatapy_tutorial.ipynb`** - Publication-quality tutorial with visualizations and scientific references  
+**Jupyter Notebook:**
+- **`metdatapy_tutorial.ipynb`** - Publication-quality interactive tutorial  
   [[GitHub](https://github.com/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)] 
   [[nbviewer](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)] 
   [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/metdatapy_tutorial.ipynb)
   
-- **`quickstart_tutorial.ipynb`** - Quick start guide for new users  
-  [[GitHub](https://github.com/kkartas/MetDataPy/blob/main/examples/quickstart_tutorial.ipynb)] 
-  [[nbviewer](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/quickstart_tutorial.ipynb)] 
-  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/quickstart_tutorial.ipynb)
-  
-- **`01_ingest_detect.ipynb`** - Data ingestion and mapping detection  
-  [[GitHub](https://github.com/kkartas/MetDataPy/blob/main/examples/01_ingest_detect.ipynb)] 
-  [[nbviewer](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/01_ingest_detect.ipynb)] 
-  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/01_ingest_detect.ipynb)
+  Comprehensive tutorial with:
+  - Step-by-step workflow with scientific references
+  - Publication-ready visualizations (QC flags, derived metrics)
+  - Mathematical formulas and physical validation
+  - Complete reproducible pipeline
 
 **Python Scripts:**
 - **`complete_workflow.py`** - Automated batch processing script
