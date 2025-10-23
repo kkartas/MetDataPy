@@ -111,12 +111,12 @@ def test_derive():
     }).set_index('ts_utc')
     
     ws = WeatherSet(df)
-    ws = ws.derive()
+    ws = ws.derive(['dew_point', 'vpd'])
     
-    assert 'dewpoint_c' in ws.df.columns
+    assert 'dew_point_c' in ws.df.columns
     assert 'vpd_kpa' in ws.df.columns
     # Dew point should be less than temperature
-    assert (ws.df['dewpoint_c'] <= ws.df['temp_c']).all()
+    assert (ws.df['dew_point_c'] <= ws.df['temp_c']).all()
 
 
 def test_calendar_features():
@@ -186,11 +186,11 @@ def test_chaining_operations():
     result = (ws
               .to_utc()
               .qc_range()
-              .derive()
+              .derive(['dew_point', 'vpd'])
               .calendar_features())
     
     assert 'qc_temp_c_range' in result.df.columns
-    assert 'dewpoint_c' in result.df.columns
+    assert 'dew_point_c' in result.df.columns
     assert 'hour' in result.df.columns
     assert len(result.df) == 10
 

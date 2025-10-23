@@ -39,7 +39,7 @@ builder.add_step("resample", "WeatherSet.resample", {"rule": "1H"})
 builder.set_qc_report(df)
 
 # Set derived features
-builder.set_derived_features(["dewpoint_c", "vpd_kpa", "heat_index_c"])
+builder.set_derived_features(["dew_point_c", "vpd_kpa", "heat_index_c"])
 
 # Set scaler parameters
 scaler = ScalerParamsModel(
@@ -116,7 +116,7 @@ manifest.to_json("manifest.json")
   
   "features": {
     "original_features": ["temp_c", "rh_pct", "pres_hpa"],
-    "derived_features": ["dewpoint_c", "vpd_kpa"],
+    "derived_features": ["dew_point_c", "vpd_kpa"],
     "lag_features": ["temp_c_lag1", "temp_c_lag2"],
     "calendar_features": ["hour", "weekday", "month"],
     "target_features": ["temp_c_t+1", "temp_c_t+3"]

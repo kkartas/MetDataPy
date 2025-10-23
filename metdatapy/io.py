@@ -183,7 +183,7 @@ def to_netcdf(
             "valid_min": 0.0,
             "valid_max": 15.0,
         },
-        "dewpoint_c": {
+        "dew_point_c": {
             "standard_name": "dew_point_temperature",
             "long_name": "Dew Point Temperature",
             "units": "degree_Celsius",

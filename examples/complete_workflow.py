@@ -118,7 +118,7 @@ def main():
     available_cols = df_clean.columns.tolist()
     feature_cols = []
     for col in ['temp_c', 'rh_pct', 'pres_hpa', 'wspd_ms', 'solar_wm2',
-                'dewpoint_c', 'vpd_kpa', 'hour_sin', 'hour_cos', 'doy_sin', 'doy_cos']:
+                'dew_point_c', 'vpd_kpa', 'hour_sin', 'hour_cos', 'doy_sin', 'doy_cos']:
         if col in available_cols:
             feature_cols.append(col)
     df_ml = df_clean[feature_cols].copy()
