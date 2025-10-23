@@ -30,14 +30,14 @@ Thank you for your interest in contributing! This guide explains how to set up y
 - Write clear, readable, and typed Python where reasonable.
 - Prefer vectorized `pandas`/`numpy` operations; avoid unnecessary loops.
 - Keep public APIs stable; add deprecations with care.
-- Lint/formatting (to be enabled in CI): ruff, black; typing with mypy.
+- Lint/formatting enabled in CI: ruff, black, isort; type checking with mypy.
 - Match existing code style and avoid unrelated reformatting.
 
 ## Pull requests
 
 - Scope PRs narrowly; include tests and docs for new features.
 - Update `README.md` and relevant pages in `docs/` when behavior changes.
-- Add entries/checkmarks to `TO-DO.md` when features are implemented.
+- Add entries/checkmarks to `ROADMAP.md` when features are implemented.
 - Explain motivation, approach, and any trade-offs in the PR description.
 
 ## Issue reporting

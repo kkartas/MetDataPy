@@ -12,7 +12,7 @@ def test_full_workflow():
     """Test a complete data processing workflow."""
     # Create sample CSV data
     df = pd.DataFrame({
-        'datetime': pd.date_range('2024-01-01', periods=50, freq='H'),
+        'datetime': pd.date_range('2024-01-01', periods=50, freq='h'),
         'temperature': [20 + i * 0.1 for i in range(50)],
         'humidity': [50 + i * 0.2 for i in range(50)],
         'pressure': [1013 + i * 0.05 for i in range(50)],
@@ -98,7 +98,7 @@ def test_qc_workflow():
         'pres_hpa': [1013.0, 1013.5, 1014.0, 1014.5],
         'wspd_ms': [5.0, 5.0, 5.0, 5.0],
         'wdir_deg': [180.0, 180.0, 180.0, 0.0],
-    }, index=pd.date_range('2024-01-01', periods=4, freq='H'))
+    }, index=pd.date_range('2024-01-01', periods=4, freq='h'))
     df.index.name = 'ts_utc'
     
     ws = WeatherSet(df)
@@ -123,7 +123,7 @@ def test_derive_workflow():
     df = pd.DataFrame({
         'temp_c': [25.0, 26.0, 27.0, 28.0, 29.0],
         'rh_pct': [60.0, 65.0, 70.0, 75.0, 80.0],
-    }, index=pd.date_range('2024-01-01', periods=5, freq='H', tz='UTC'))
+    }, index=pd.date_range('2024-01-01', periods=5, freq='h', tz='UTC'))
     df.index.name = 'ts_utc'
     
     ws = WeatherSet(df).derive(['dew_point', 'vpd'])

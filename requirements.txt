@@ -3,6 +3,9 @@
 
 # Core dependencies (from pyproject.toml)
 pandas>=2.0
+# Note: If using matplotlib or other viz libraries with NumPy 2.x compatibility issues,
+# you may need to constrain to numpy<2.0 until those libraries update their builds.
+# The core MetDataPy package works with both NumPy 1.x and 2.x.
 numpy>=1.23
 pyarrow>=13.0
 click>=8.1

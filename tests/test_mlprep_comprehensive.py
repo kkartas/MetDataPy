@@ -8,7 +8,7 @@ from metdatapy.mlprep import make_supervised, time_split, fit_scaler, apply_scal
 def test_make_supervised_basic():
     """Test supervised learning table creation with lags."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=10, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=10, freq='h'),
         'temp_c': list(range(10)),
         'rh_pct': list(range(10, 20)),
     }).set_index('ts_utc')
@@ -24,7 +24,7 @@ def test_make_supervised_basic():
 def test_make_supervised_multiple_horizons():
     """Test multiple forecast horizons."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=20, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=20, freq='h'),
         'temp_c': list(range(20)),
     }).set_index('ts_utc')
     
@@ -38,7 +38,7 @@ def test_make_supervised_multiple_horizons():
 def test_make_supervised_drop_na():
     """Test NA dropping in supervised table."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=10, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=10, freq='h'),
         'temp_c': list(range(10)),
     }).set_index('ts_utc')
     
@@ -52,7 +52,7 @@ def test_make_supervised_drop_na():
 def test_time_split_basic():
     """Test time-based data splitting."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=100, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=100, freq='h'),
         'temp_c': list(range(100)),
     }).set_index('ts_utc')
     
@@ -70,7 +70,7 @@ def test_time_split_basic():
 def test_time_split_no_val():
     """Test time split without validation set."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=100, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=100, freq='h'),
         'temp_c': list(range(100)),
     }).set_index('ts_utc')
     
@@ -222,7 +222,7 @@ def test_end_to_end_ml_pipeline():
     """Test complete ML preparation pipeline."""
     # Create sample data
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=100, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=100, freq='h'),
         'temp_c': [20 + i * 0.1 for i in range(100)],
         'rh_pct': [50 + i * 0.2 for i in range(100)],
     }).set_index('ts_utc')

@@ -20,31 +20,11 @@ bibliography: paper.bib
 
 # Summary
 
-MetDataPy is a Python package designed to streamline the ingestion, quality control, and preparation of meteorological time-series data for machine learning applications. Weather data from diverse sources—such as weather stations, citizen science networks, and IoT sensors—typically arrive in heterogeneous formats with varying units, inconsistent timestamps, and quality issues. MetDataPy addresses these challenges by providing a unified canonical schema, automated column mapping with source detection, comprehensive quality control algorithms, and reproducible ML-ready data pipelines. The package enables researchers and practitioners to transform raw meteorological observations into clean, well-documented datasets suitable for forecasting, climate analysis, and agricultural modeling. The software is freely available under the MIT license at https://github.com/kkartas/MetDataPy with comprehensive documentation at https://metdatapy.readthedocs.io/.
-
-# Installation
-
-MetDataPy can be installed via pip from the Python Package Index (PyPI):
-
-```bash
-pip install metdatapy
-```
-
-For optional features including NetCDF export and advanced ML functionality:
-
-```bash
-pip install metdatapy[ml,extras]
-```
-
-The package requires Python 3.9 or later and depends on core scientific Python libraries including pandas (≥2.0), NumPy (≥1.23), and PyYAML (≥6.0). Development installation from source is available via:
-
-```bash
-git clone https://github.com/kkartas/MetDataPy
-cd MetDataPy
-pip install -e .
-```
+MetDataPy is a Python package designed to streamline the ingestion, quality control, and preparation of meteorological time-series data for machine learning applications. Weather data from diverse sources—such as weather stations, citizen science networks, and IoT sensors—typically arrive in heterogeneous formats with varying units, inconsistent timestamps, and quality issues. MetDataPy addresses these challenges by providing a unified canonical schema, automated column mapping with source detection, comprehensive quality control algorithms, and reproducible ML-ready data pipelines. The package enables researchers and practitioners to transform raw meteorological observations into clean, well-documented datasets suitable for forecasting, climate analysis, and agricultural modeling. The software is freely available under the MIT license at https://github.com/kkartas/MetDataPy with comprehensive documentation at https://metdatapy.readthedocs.io/. Installation instructions are provided in the README.
 
 # Statement of Need
+
+MetDataPy primarily serves atmospheric scientists, agricultural researchers, and machine learning practitioners working with weather station data and meteorological time series.
 
 Machine learning applications in atmospheric sciences, agriculture, and renewable energy increasingly rely on high-quality meteorological time-series data [@rasp2020weatherbench; @schultz2021can]. However, preparing such data remains time-consuming and error-prone due to several challenges: (1) heterogeneous data formats across providers (NOAA, Weathercloud, custom stations); (2) unit inconsistencies (Fahrenheit vs. Celsius, mph vs. m/s); (3) temporal issues including timezone handling, daylight saving transitions, and irregular sampling; (4) quality problems such as sensor drift, outliers, and missing values; and (5) ML-specific requirements like time-safe data splitting and feature scaling. A typical workflow might involve manually mapping dozens of column names, writing custom unit conversion functions, implementing ad-hoc quality checks, and carefully managing train-test splits to prevent temporal leakage—processes that are both error-prone and difficult to reproduce across research groups.
 
@@ -56,7 +36,7 @@ MetDataPy fills this gap by providing an end-to-end workflow specifically design
 
 2. **Comprehensive quality control**: Meteorological QC algorithms including range checks against climatological bounds, spike detection using rolling Median Absolute Deviation [@leys2013detecting] which is more robust than standard deviation, flatline detection via rolling variance to identify stuck sensors, and cross-variable consistency checks exploiting physical relationships (e.g., dew point ≤ temperature, wind direction undefined when wind speed ≈ 0). All checks produce boolean flags preserving provenance without destructive deletion. QC parameters are configurable via YAML, with reports providing statistical summaries by variable and flag type.
 
-3. **Derived meteorological metrics**: Scientifically validated calculations of dew point using the Magnus-Tetens approximation [@lawrence2005relationship], vapor pressure deficit following FAO-56 guidelines [@allen1998crop], heat index using the Rothfusz regression [@rothfusz1990heat] with Steadman adjustments, and wind chill following the 2001 North American wind chill equivalent temperature chart [@osczevski2005new]. All formulations include complete references to peer-reviewed literature and specify valid ranges and assumptions. These derived variables are crucial for agricultural decision support systems, outdoor worker safety applications, and energy demand forecasting.
+3. **Derived meteorological metrics**: Scientifically validated calculations of dew point using the Magnus-Tetens approximation [@lawrence2005relationship], vapor pressure deficit following FAO-56 guidelines [@allen1998crop], heat index based on Steadman's physiological model [@steadman1979assessment] with the Rothfusz regression approximation [@rothfusz1990heat], and wind chill following the 2001 North American wind chill equivalent temperature chart [@osczevski2005new]. All formulations include complete references to peer-reviewed literature and specify valid ranges and assumptions. These derived variables are crucial for agricultural decision support systems, outdoor worker safety applications, and energy demand forecasting.
 
 4. **ML-ready preparation**: Time-safe data splitting preventing temporal leakage, supervised learning table generation with configurable lags and forecast horizons, and reproducible scaling with parameter serialization. The package supports standard, min-max, and robust scaling with parameters serialized to JSON for exact reproducibility. Calendar features (hour, day-of-week, month, cyclical encodings) are automatically generated, and external covariates can be aligned by timestamp.
 
@@ -64,9 +44,23 @@ MetDataPy fills this gap by providing an end-to-end workflow specifically design
 
 # Implementation and Design
 
-The package is structured around a core `WeatherSet` class providing a fluent API for chaining operations while maintaining data provenance. The canonical schema defines nine core meteorological variables with standardized names and SI-derived units. Timezone handling ensures all timestamps are converted to UTC, eliminating ambiguity from daylight saving transitions. Special handling detects and corrects accumulated rainfall sensor rollovers. Resampling operations intelligently aggregate variables (mean for intensive quantities, sum for extensive) while conservatively propagating quality flags using logical OR. The implementation emphasizes computational efficiency through vectorized pandas and NumPy operations, processing typical annual weather station datasets (52,000 rows at 10-minute resolution) in under 500 milliseconds on consumer hardware.
+The package is structured around a core `WeatherSet` class providing a fluent API for chaining operations while maintaining data provenance. The canonical schema defines nine core meteorological variables with standardized names and SI-derived units. Timezone handling ensures all timestamps are converted to UTC, eliminating ambiguity from daylight saving transitions. Special handling detects and corrects accumulated rainfall sensor rollovers. Resampling operations intelligently aggregate variables (mean for intensive quantities, sum for extensive) while conservatively propagating quality flags using logical OR. 
 
-The command-line interface (`mdp`) provides composable commands for detection, ingestion, quality control, and export, enabling integration into automated pipelines. The Python API allows fine-grained control for Jupyter notebooks and custom scripts. Comprehensive documentation includes API references, tutorials, and a publication-quality Jupyter notebook with visualizations.
+The implementation emphasizes computational efficiency through vectorized pandas and NumPy operations. \autoref{table:performance} shows benchmark results demonstrating that MetDataPy processes one year of 10-minute weather data (52,560 rows) in under 400 milliseconds on consumer hardware, with throughput exceeding 100,000 rows per second for most operations.
+
+Table: Performance benchmarks for core operations on 52,560 rows (1 year of 10-min data). \label{table:performance}
+
+| Operation | Time (ms) | Throughput (rows/s) |
+|:----------|----------:|--------------------:|
+| Quality Control (range, spike, flatline) | 310 | 169,794 |
+| Derived Metrics (4 variables) | 20 | 2,630,762 |
+| Resample (10-min → hourly) | 9 | 5,818,688 |
+| Calendar Features (cyclical encoding) | 17 | 3,134,412 |
+| ML Preparation (lags + horizons) | 44 | 1,199,155 |
+
+The command-line interface (`mdp`) provides composable commands for detection, ingestion, quality control, and export, enabling integration into automated pipelines. The Python API allows fine-grained control for Jupyter notebooks and custom scripts. Comprehensive documentation includes API references, tutorials, and a publication-quality Jupyter notebook with visualizations. 
+
+All analyses and benchmarks reported in this paper are fully reproducible using the provided example notebooks (`examples/metdatapy_tutorial.ipynb`), benchmark scripts (`benchmarks/benchmark_performance.py`), and integration tests in the repository. The performance measurements in \autoref{table:performance} can be reproduced by running the benchmark script on comparable hardware.
 
 # Use Cases and Applications
 

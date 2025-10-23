@@ -23,13 +23,24 @@ License: MIT
 import json
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
 from metdatapy.core import WeatherSet
 from metdatapy.mapper import Detector, Mapper
 from metdatapy.mlprep import make_supervised, time_split, fit_scaler, apply_scaler
+
+# Optional: matplotlib for visualization (not required for core workflow)
+try:
+    import matplotlib.pyplot as plt
+    HAS_MATPLOTLIB = True
+except ImportError as e:
+    HAS_MATPLOTLIB = False
+    print("Note: matplotlib not available, skipping visualizations")
+    print(f"  Error: {e}")
+    print("  If you encounter NumPy compatibility issues, try:")
+    print("    pip install 'numpy<2.0' matplotlib")
+    print("  or upgrade matplotlib to a version compatible with NumPy 2.x")
 
 # Configuration
 DATA_PATH = Path("../data/sample_weather_2024.csv")

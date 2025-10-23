@@ -84,6 +84,11 @@ class WeatherSet:
         freq = frequency or pd.infer_freq(self.df.index)
         if freq is None:
             return self
+        # Normalize deprecated frequency aliases (H->h, T->min, etc.)
+        if freq == 'H':
+            freq = 'h'
+        elif freq and freq.endswith('H') and freq[:-1].isdigit():
+            freq = freq[:-1] + 'h'
         full = pd.date_range(self.df.index.min(), self.df.index.max(), freq=freq, tz="UTC")
         before = self.df.index
         self.df = self.df.reindex(full)

@@ -36,7 +36,7 @@ def test_from_csv_basic():
 def test_to_utc():
     """Test timezone conversion to UTC."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='H', tz='US/Eastern'),
+        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='h', tz='US/Eastern'),
         'temp_c': [20, 21, 22, 23, 24],
     }).set_index('ts_utc')
     
@@ -66,7 +66,7 @@ def test_insert_missing():
 def test_fix_accum_rain():
     """Test rainfall accumulation rollover detection."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='h'),
         'rain_mm': [995.0, 998.0, 999.9, 0.5, 2.0],  # Rollover at index 3
     }).set_index('ts_utc')
     
@@ -99,7 +99,7 @@ def test_resample():
 def test_qc_range():
     """Test range-based quality control."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='h'),
         'temp_c': [20.0, 25.0, 999.0, -50.0, 22.0],  # Two out of range
     }).set_index('ts_utc')
     
@@ -113,7 +113,7 @@ def test_qc_range():
 def test_derive():
     """Test derived meteorological metrics."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='h'),
         'temp_c': [25.0, 26.0, 27.0, 28.0, 29.0],
         'rh_pct': [60.0, 65.0, 70.0, 75.0, 80.0],
         'pres_hpa': [1013.0] * 5,
@@ -131,7 +131,7 @@ def test_derive():
 def test_calendar_features():
     """Test calendar feature generation."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=24, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=24, freq='h'),
         'temp_c': [20.0] * 24,
     }).set_index('ts_utc')
     
@@ -171,7 +171,7 @@ def test_add_exogenous():
 def test_to_dataframe():
     """Test conversion to dataframe."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='h'),
         'temp_c': [20.0, 21.0, 22.0, 23.0, 24.0],
     }).set_index('ts_utc')
     
@@ -186,7 +186,7 @@ def test_to_dataframe():
 def test_chaining_operations():
     """Test chaining multiple operations."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=10, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=10, freq='h'),
         'temp_c': [20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 24.0, 23.0, 22.0, 21.0],
         'rh_pct': [50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 70.0, 65.0, 60.0, 55.0],
     }).set_index('ts_utc')
@@ -207,7 +207,7 @@ def test_chaining_operations():
 def test_from_mapping():
     """Test creation from mapping."""
     df = pd.DataFrame({
-        'timestamp': pd.date_range('2024-01-01', periods=5, freq='H'),
+        'timestamp': pd.date_range('2024-01-01', periods=5, freq='h'),
         'temperature': [20, 21, 22, 23, 24],
         'humidity': [50, 55, 60, 65, 70],
     })
@@ -240,7 +240,7 @@ def test_from_mapping_missing_ts():
 def test_normalize_units_fahrenheit():
     """Test temperature conversion from Fahrenheit."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=3, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=3, freq='h'),
         'temp_c': [32.0, 68.0, 212.0],  # Freezing, room temp, boiling in F
     }).set_index('ts_utc')
     
@@ -260,7 +260,7 @@ def test_normalize_units_fahrenheit():
 def test_normalize_units_wind_speed():
     """Test wind speed unit conversions."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=3, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=3, freq='h'),
         'wspd_ms': [10.0, 20.0, 30.0],  # mph
     }).set_index('ts_utc')
     
@@ -279,7 +279,7 @@ def test_normalize_units_wind_speed():
 def test_normalize_units_pressure():
     """Test pressure unit conversions."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=2, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=2, freq='h'),
         'pres_hpa': [101300.0, 100000.0],  # Pa
     }).set_index('ts_utc')
     
@@ -298,7 +298,7 @@ def test_normalize_units_pressure():
 def test_to_utc_naive_datetime():
     """Test UTC conversion for naive datetime index."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='h'),
         'temp_c': [20, 21, 22, 23, 24],
     }).set_index('ts_utc')
     
@@ -325,7 +325,7 @@ def test_insert_missing_no_frequency():
 def test_fix_accum_rain_no_rain_column():
     """Test fix_accum_rain when no rain column exists."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='h'),
         'temp_c': [20, 21, 22, 23, 24],
     }).set_index('ts_utc')
     
@@ -355,7 +355,7 @@ def test_resample_with_gap_flag():
 def test_calendar_features_non_cyclical():
     """Test calendar features without cyclical encoding."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='h'),
         'temp_c': [20.0] * 5,
     }).set_index('ts_utc')
     
@@ -371,12 +371,12 @@ def test_calendar_features_non_cyclical():
 def test_add_exogenous_tz_naive():
     """Test adding exogenous data with naive timezone."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='H', tz='UTC'),
+        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='h', tz='UTC'),
         'temp_c': [20.0] * 5,
     }).set_index('ts_utc')
     
     exog = pd.DataFrame({
-        'time': pd.date_range('2024-01-01', periods=5, freq='H'),  # Naive
+        'time': pd.date_range('2024-01-01', periods=5, freq='h'),  # Naive
         'solar_wm2': [0, 100, 200, 300, 200],
     }).set_index('time')
     
@@ -388,7 +388,7 @@ def test_add_exogenous_tz_naive():
 def test_qc_spike():
     """Test spike detection QC."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=10, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=10, freq='h'),
         'temp_c': [20, 20, 20, 100, 20, 20, 20, 20, 20, 20],  # Spike at index 3
     }).set_index('ts_utc')
     
@@ -402,7 +402,7 @@ def test_qc_spike():
 def test_qc_flatline():
     """Test flatline detection QC."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=10, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=10, freq='h'),
         'temp_c': [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 21.0, 22.0, 23.0, 24.0],
     }).set_index('ts_utc')
     
@@ -416,7 +416,7 @@ def test_qc_flatline():
 def test_qc_consistency():
     """Test cross-variable consistency checks."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='h'),
         'temp_c': [20.0, 21.0, 22.0, 23.0, 24.0],
         'rh_pct': [50.0, 55.0, 60.0, 65.0, 70.0],
     }).set_index('ts_utc')
@@ -430,7 +430,7 @@ def test_qc_consistency():
 def test_derive_individual_metrics():
     """Test deriving individual metrics."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='h'),
         'temp_c': [25.0, 26.0, 27.0, 28.0, 29.0],
         'rh_pct': [60.0, 65.0, 70.0, 75.0, 80.0],
         'wspd_ms': [5.0, 6.0, 7.0, 8.0, 9.0],
@@ -459,7 +459,7 @@ def test_derive_individual_metrics():
 def test_derive_missing_required_columns():
     """Test derive when required columns are missing."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='h'),
         'temp_c': [25.0, 26.0, 27.0, 28.0, 29.0],
         # Missing rh_pct
     }).set_index('ts_utc')
@@ -474,7 +474,7 @@ def test_derive_missing_required_columns():
 def test_to_netcdf(tmp_path):
     """Test NetCDF export."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='H', tz='UTC'),
+        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='h', tz='UTC'),
         'temp_c': [20.0, 21.0, 22.0, 23.0, 24.0],
         'rh_pct': [50.0, 55.0, 60.0, 65.0, 70.0],
     }).set_index('ts_utc')

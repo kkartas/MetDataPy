@@ -127,7 +127,7 @@ def test_ensure_datetime_utc_with_tz_hint():
 def test_infer_frequency_valid():
     """Test frequency inference with regular intervals."""
     from metdatapy.utils import infer_frequency
-    idx = pd.DatetimeIndex(pd.date_range('2024-01-01', periods=10, freq='1H'))
+    idx = pd.DatetimeIndex(pd.date_range('2024-01-01', periods=10, freq='1h'))
     freq = infer_frequency(idx)
     
     assert freq is not None
