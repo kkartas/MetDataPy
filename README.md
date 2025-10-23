@@ -40,6 +40,7 @@ Features
 - Derived: dew point, VPD, heat index, wind chill
 - ML prep: supervised table builder (lags, horizons), time-safe split, scaling (Standard/MinMax/Robust)
 - Export: Parquet and CF-compliant NetCDF with metadata
+- **Performance:** Processes 1 year of 10-min data in <0.5s (see `benchmarks/`)
 
 Quality Control
 - Range checks with boolean flags (`qc_<var>_range`)
