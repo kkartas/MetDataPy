@@ -22,6 +22,28 @@ bibliography: paper.bib
 
 MetDataPy is a Python package designed to streamline the ingestion, quality control, and preparation of meteorological time-series data for machine learning applications. Weather data from diverse sources—such as weather stations, citizen science networks, and IoT sensors—typically arrive in heterogeneous formats with varying units, inconsistent timestamps, and quality issues. MetDataPy addresses these challenges by providing a unified canonical schema, automated column mapping with source detection, comprehensive quality control algorithms, and reproducible ML-ready data pipelines. The package enables researchers and practitioners to transform raw meteorological observations into clean, well-documented datasets suitable for forecasting, climate analysis, and agricultural modeling. The software is freely available under the MIT license at https://github.com/kkartas/MetDataPy with comprehensive documentation at https://metdatapy.readthedocs.io/.
 
+# Installation
+
+MetDataPy can be installed via pip from the Python Package Index (PyPI):
+
+```bash
+pip install metdatapy
+```
+
+For optional features including NetCDF export and advanced ML functionality:
+
+```bash
+pip install metdatapy[ml,extras]
+```
+
+The package requires Python 3.9 or later and depends on core scientific Python libraries including pandas (≥2.0), NumPy (≥1.23), and PyYAML (≥6.0). Development installation from source is available via:
+
+```bash
+git clone https://github.com/kkartas/MetDataPy
+cd MetDataPy
+pip install -e .
+```
+
 # Statement of Need
 
 Machine learning applications in atmospheric sciences, agriculture, and renewable energy increasingly rely on high-quality meteorological time-series data [@rasp2020weatherbench; @schultz2021can]. However, preparing such data remains time-consuming and error-prone due to several challenges: (1) heterogeneous data formats across providers (NOAA, Weathercloud, custom stations); (2) unit inconsistencies (Fahrenheit vs. Celsius, mph vs. m/s); (3) temporal issues including timezone handling, daylight saving transitions, and irregular sampling; (4) quality problems such as sensor drift, outliers, and missing values; and (5) ML-specific requirements like time-safe data splitting and feature scaling. A typical workflow might involve manually mapping dozens of column names, writing custom unit conversion functions, implementing ad-hoc quality checks, and carefully managing train-test splits to prevent temporal leakage—processes that are both error-prone and difficult to reproduce across research groups.
