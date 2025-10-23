@@ -6,16 +6,24 @@ from metdatapy.core import WeatherSet
 
 
 def test_from_csv_basic():
-    """Test basic CSV loading."""
+    """Test basic CSV loading with mapping."""
     df = pd.DataFrame({
-        'timestamp': pd.date_range('2024-01-01', periods=10, freq='H'),
-        'temp_c': [20, 21, 22, 23, 24, 25, 24, 23, 22, 21],
-        'rh_pct': [50, 55, 60, 65, 70, 75, 70, 65, 60, 55],
+        'timestamp': pd.date_range('2024-01-01', periods=10, freq='1h'),
+        'temperature': [20, 21, 22, 23, 24, 25, 24, 23, 22, 21],
+        'humidity': [50, 55, 60, 65, 70, 75, 70, 65, 60, 55],
     })
     csv_path = 'test_data.csv'
     df.to_csv(csv_path, index=False)
     
-    ws = WeatherSet.from_csv(csv_path, ts_col='timestamp')
+    mapping = {
+        'ts': {'col': 'timestamp'},
+        'fields': {
+            'temp_c': {'col': 'temperature', 'unit': 'C'},
+            'rh_pct': {'col': 'humidity', 'unit': '%'},
+        }
+    }
+    
+    ws = WeatherSet.from_csv(csv_path, mapping)
     
     assert len(ws.df) == 10
     assert 'temp_c' in ws.df.columns
@@ -42,15 +50,16 @@ def test_to_utc():
 def test_insert_missing():
     """Test gap insertion with gap flag."""
     df = pd.DataFrame({
-        'ts_utc': pd.to_datetime(['2024-01-01 00:00', '2024-01-01 02:00', '2024-01-01 03:00']),
+        'ts_utc': pd.to_datetime(['2024-01-01 00:00', '2024-01-01 02:00', '2024-01-01 03:00'], utc=True),
         'temp_c': [20.0, 22.0, 23.0],
     }).set_index('ts_utc')
     
     ws = WeatherSet(df)
-    ws = ws.insert_missing(freq='1H')
+    ws = ws.insert_missing(frequency='1h')  # Correct parameter name
     
     assert len(ws.df) == 4  # Filled gap at 01:00
     assert 'gap' in ws.df.columns
+    # Gap at 01:00 only (the filled timestamp)
     assert ws.df['gap'].sum() == 1  # One gap
 
 
@@ -140,15 +149,15 @@ def test_calendar_features():
 
 def test_add_exogenous():
     """Test adding exogenous variables."""
-    # Main data
+    # Main data (with UTC timezone)
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='1h', tz='UTC'),
         'temp_c': [20.0, 21.0, 22.0, 23.0, 24.0],
     }).set_index('ts_utc')
     
-    # Exogenous data
+    # Exogenous data (with UTC timezone)
     exog = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='H'),
+        'ts_utc': pd.date_range('2024-01-01', periods=5, freq='1h', tz='UTC'),
         'solar_wm2': [0, 100, 200, 300, 200],
     }).set_index('ts_utc')
     
@@ -301,15 +310,16 @@ def test_to_utc_naive_datetime():
 
 def test_insert_missing_no_frequency():
     """Test insert_missing when frequency cannot be inferred."""
+    # Need at least 3 points for pandas infer_freq
     df = pd.DataFrame({
-        'ts_utc': pd.to_datetime(['2024-01-01 00:00', '2024-01-01 01:00']),
-        'temp_c': [20.0, 21.0],
+        'ts_utc': pd.to_datetime(['2024-01-01 00:00', '2024-01-01 01:00', '2024-01-01 02:00']),
+        'temp_c': [20.0, 21.0, 22.0],
     }).set_index('ts_utc')
     
     ws = WeatherSet(df).insert_missing(frequency=None)
     
-    # Should return unchanged if freq can't be inferred
-    assert len(ws.df) >= 2
+    # Should infer hourly frequency and not add gaps (data is complete)
+    assert len(ws.df) == 3
 
 
 def test_fix_accum_rain_no_rain_column():

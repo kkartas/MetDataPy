@@ -17,7 +17,7 @@ def test_make_supervised_basic():
     
     assert 'temp_c_lag1' in result.columns
     assert 'temp_c_lag2' in result.columns
-    assert 'temp_c_h1' in result.columns
+    assert 'temp_c_t+1' in result.columns  # Target horizon uses t+N format
     assert len(result) < len(df)  # Some rows dropped due to lags/horizons
 
 
@@ -30,9 +30,9 @@ def test_make_supervised_multiple_horizons():
     
     result = make_supervised(df, targets=['temp_c'], lags=[1], horizons=[1, 3, 6])
     
-    assert 'temp_c_h1' in result.columns
-    assert 'temp_c_h3' in result.columns
-    assert 'temp_c_h6' in result.columns
+    assert 'temp_c_t+1' in result.columns  # Target horizons use t+N format
+    assert 'temp_c_t+3' in result.columns
+    assert 'temp_c_t+6' in result.columns
 
 
 def test_make_supervised_drop_na():
@@ -247,6 +247,6 @@ def test_end_to_end_ml_pipeline():
     assert len(val_scaled) > 0
     assert len(test_scaled) > 0
     assert 'temp_c_lag1' in train_scaled.columns
-    assert 'temp_c_h1' in train_scaled.columns
+    assert 'temp_c_t+1' in train_scaled.columns  # Target horizon uses t+N format
 
 

@@ -53,26 +53,31 @@ def test_identity():
 
 
 def test_parse_unit_hint_temperature():
-    """Test parsing temperature unit hints."""
-    assert parse_unit_hint("temp_f") == "F"
-    assert parse_unit_hint("temperature_fahrenheit") == "F"
-    assert parse_unit_hint("temp_c") == "C"
-    assert parse_unit_hint("temperature_celsius") is None  # No explicit 'c' in pattern
+    """Test parsing temperature unit hints from column headers."""
+    assert parse_unit_hint("Temperature (°F)") == "F"
+    assert parse_unit_hint("Temperature (F)") == "F"
+    assert parse_unit_hint("Temp degF") == "F"
+    assert parse_unit_hint("Temperature (°C)") == "C"
+    assert parse_unit_hint("Temp C") == "C"
+    assert parse_unit_hint("temperature") is None  # No unit hint
 
 
 def test_parse_unit_hint_pressure():
-    """Test parsing pressure unit hints."""
-    assert parse_unit_hint("pressure_mbar") == "mbar"
-    assert parse_unit_hint("pres_mb") == "mbar"
-    assert parse_unit_hint("pressure_pa") == "Pa"
-    assert parse_unit_hint("pres_hpa") is None  # Default
+    """Test parsing pressure unit hints from column headers."""
+    assert parse_unit_hint("Pressure (mbar)") == "mbar"
+    assert parse_unit_hint("Pres mb") == "mbar"
+    assert parse_unit_hint("Pressure (hPa)") == "hpa"
+    assert parse_unit_hint("Pressure Pa") == "pa"
+    assert parse_unit_hint("pressure") is None  # No unit hint
 
 
 def test_parse_unit_hint_wind_speed():
-    """Test parsing wind speed unit hints."""
-    assert parse_unit_hint("windspeed_mph") == "mph"
-    assert parse_unit_hint("wind_kmh") == "km/h"
-    assert parse_unit_hint("wspd_ms") is None  # Default
+    """Test parsing wind speed unit hints from column headers."""
+    assert parse_unit_hint("Wind Speed (mph)") == "mph"
+    assert parse_unit_hint("Wind km/h") == "km/h"
+    assert parse_unit_hint("Wind kph") == "km/h"
+    assert parse_unit_hint("Wind m/s") == "m/s"
+    assert parse_unit_hint("wind_speed") is None  # No unit hint
 
 
 def test_parse_unit_hint_no_hint():
@@ -85,8 +90,8 @@ def test_parse_unit_hint_no_hint():
 
 def test_parse_unit_hint_case_insensitive():
     """Test that unit hint parsing is case-insensitive."""
-    assert parse_unit_hint("TEMP_F") == "F"
-    assert parse_unit_hint("Pressure_MBAR") == "mbar"
-    assert parse_unit_hint("WindSpeed_MPH") == "mph"
+    assert parse_unit_hint("TEMP (F)") == "F"
+    assert parse_unit_hint("Pressure (MBAR)") == "mbar"
+    assert parse_unit_hint("WindSpeed MPH") == "mph"
 
 
