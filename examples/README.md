@@ -2,9 +2,13 @@
 
 This directory contains example notebooks and scripts demonstrating MetDataPy's capabilities.
 
-## Examples
+## Interactive Notebooks
+
+Click the badges to view or run notebooks online without installation:
 
 ### 1. Jupyter Notebook Tutorial (`metdatapy_tutorial.ipynb`)
+[![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/metdatapy_tutorial.ipynb)
 
 **Publication-quality interactive tutorial** with:
 - Comprehensive documentation and scientific references
@@ -13,14 +17,28 @@ This directory contains example notebooks and scripts demonstrating MetDataPy's 
 - Mathematical formulas (Magnus, Tetens, Rothfusz)
 - Complete reproducible pipeline
 
-**To run:**
+**To run locally:**
 ```bash
 pip install -e ..
 pip install jupyter matplotlib seaborn
 jupyter notebook metdatapy_tutorial.ipynb
 ```
 
-### 2. Python Script (`complete_workflow.py`)
+### 2. Quickstart Tutorial (`quickstart_tutorial.ipynb`)
+[![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/quickstart_tutorial.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/quickstart_tutorial.ipynb)
+
+Quick introduction to MetDataPy core features.
+
+### 3. Ingestion & Detection (`01_ingest_detect.ipynb`)
+[![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/01_ingest_detect.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/01_ingest_detect.ipynb)
+
+Focus on data ingestion and automatic column mapping detection.
+
+## Python Scripts
+
+### 1. Complete Workflow (`complete_workflow.py`)
 
 Command-line script for automated processing:
 
@@ -31,7 +49,7 @@ Command-line script for automated processing:
 5. **ML Preparation** - Supervised datasets with lags, time-safe splits, scaling
 6. **Export** - Save to Parquet with reproducible parameters
 
-### 3. NetCDF Export Example (`netcdf_export_example.py`)
+### 2. NetCDF Export Example (`netcdf_export_example.py`)
 
 Demonstrates CF-compliant NetCDF export:
 

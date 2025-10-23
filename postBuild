@@ -1,0 +1,5 @@
+#!/bin/bash
+# Binder post-build script to install the MetDataPy package
+
+pip install -e .
+

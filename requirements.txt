@@ -1,0 +1,31 @@
+# Binder and Jupyter notebook requirements
+# This file enables interactive notebooks via MyBinder.org
+
+# Core dependencies (from pyproject.toml)
+pandas>=2.0
+numpy>=1.23
+pyarrow>=13.0
+click>=8.1
+pydantic>=2.4
+PyYAML>=6.0
+
+# ML dependencies
+scikit-learn>=1.2
+statsmodels>=0.13
+
+# Export dependencies
+xarray>=2023.6.0
+netCDF4>=1.6
+cftime>=1.6
+
+# Additional optional dependencies
+astral>=3.2
+holidays>=0.36
+
+# Notebook dependencies
+jupyter>=1.0
+ipykernel>=6.0
+notebook>=7.0
+matplotlib>=3.5
+seaborn>=0.12
+

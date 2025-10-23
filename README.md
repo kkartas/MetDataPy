@@ -89,18 +89,39 @@ train_scaled = apply_scaler(splits["train"], scaler)
 ## Examples
 
 See the `examples/` directory for:
-- **`metdatapy_tutorial.ipynb`** - Publication-quality Jupyter notebook with visualizations and scientific references
-- **`complete_workflow.py`** - Automated Python script for batch processing
+
+**Jupyter Notebooks:**
+- **`metdatapy_tutorial.ipynb`** - Publication-quality tutorial with visualizations and scientific references  
+  [![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)
+  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/metdatapy_tutorial.ipynb)
+  
+- **`quickstart_tutorial.ipynb`** - Quick start guide for new users  
+  [![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/quickstart_tutorial.ipynb)
+  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/quickstart_tutorial.ipynb)
+  
+- **`01_ingest_detect.ipynb`** - Data ingestion and mapping detection  
+  [![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/01_ingest_detect.ipynb)
+  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/01_ingest_detect.ipynb)
+
+**Python Scripts:**
+- **`complete_workflow.py`** - Automated batch processing script
+- **`netcdf_export_example.py`** - CF-compliant NetCDF export demonstration
+
+**Additional Resources:**
 - **`README.md`** - Detailed usage guide
 - Sample weather data in `data/sample_weather_2024.csv`
 
-Run the interactive tutorial:
+**Try the notebooks online:**
+- 🔍 **View** notebooks with [nbviewer](https://nbviewer.org/) (static rendering with proper formatting)
+- 🚀 **Run** notebooks interactively with [Binder](https://mybinder.org/) (no installation required)
+
+**Or run locally:**
 ```bash
 cd examples
 jupyter notebook metdatapy_tutorial.ipynb
 ```
 
-Or run the automated workflow:
+**Automated workflow:**
 ```bash
 cd examples
 python complete_workflow.py
