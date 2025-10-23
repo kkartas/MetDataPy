@@ -92,15 +92,18 @@ See the `examples/` directory for:
 
 **Jupyter Notebooks:**
 - **`metdatapy_tutorial.ipynb`** - Publication-quality tutorial with visualizations and scientific references  
-  [![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)
+  [[GitHub](https://github.com/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)] 
+  [[nbviewer](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)] 
   [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/metdatapy_tutorial.ipynb)
   
 - **`quickstart_tutorial.ipynb`** - Quick start guide for new users  
-  [![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/quickstart_tutorial.ipynb)
+  [[GitHub](https://github.com/kkartas/MetDataPy/blob/main/examples/quickstart_tutorial.ipynb)] 
+  [[nbviewer](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/quickstart_tutorial.ipynb)] 
   [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/quickstart_tutorial.ipynb)
   
 - **`01_ingest_detect.ipynb`** - Data ingestion and mapping detection  
-  [![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/01_ingest_detect.ipynb)
+  [[GitHub](https://github.com/kkartas/MetDataPy/blob/main/examples/01_ingest_detect.ipynb)] 
+  [[nbviewer](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/01_ingest_detect.ipynb)] 
   [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/01_ingest_detect.ipynb)
 
 **Python Scripts:**
@@ -111,9 +114,11 @@ See the `examples/` directory for:
 - **`README.md`** - Detailed usage guide
 - Sample weather data in `data/sample_weather_2024.csv`
 
-**Try the notebooks online:**
-- 🔍 **View** notebooks with [nbviewer](https://nbviewer.org/) (static rendering with proper formatting)
-- 🚀 **Run** notebooks interactively with [Binder](https://mybinder.org/) (no installation required)
+**Try the notebooks:**
+- 📁 **View on GitHub** - Click GitHub links above for native rendering (works immediately)
+- 🔍 **View on nbviewer** - Better rendering with MathJax support
+  - *Note: nbviewer may show 400 errors for new/recently updated files due to caching. If this happens, use GitHub view or try again in a few minutes.*
+- 🚀 **Run interactively** - Click Binder badge for live Jupyter environment (takes ~2 min to launch)
 
 **Or run locally:**
 ```bash

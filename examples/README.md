@@ -4,10 +4,13 @@ This directory contains example notebooks and scripts demonstrating MetDataPy's 
 
 ## Interactive Notebooks
 
-Click the badges to view or run notebooks online without installation:
+**View options:** GitHub (native) | nbviewer (enhanced) | Binder (interactive)
+
+> **Note:** If nbviewer shows an error, try the GitHub link or wait a few minutes for cache refresh.
 
 ### 1. Jupyter Notebook Tutorial (`metdatapy_tutorial.ipynb`)
-[![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)
+[[GitHub](https://github.com/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)] 
+[[nbviewer](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)] 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/metdatapy_tutorial.ipynb)
 
 **Publication-quality interactive tutorial** with:
@@ -25,13 +28,15 @@ jupyter notebook metdatapy_tutorial.ipynb
 ```
 
 ### 2. Quickstart Tutorial (`quickstart_tutorial.ipynb`)
-[![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/quickstart_tutorial.ipynb)
+[[GitHub](https://github.com/kkartas/MetDataPy/blob/main/examples/quickstart_tutorial.ipynb)] 
+[[nbviewer](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/quickstart_tutorial.ipynb)] 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/quickstart_tutorial.ipynb)
 
 Quick introduction to MetDataPy core features.
 
 ### 3. Ingestion & Detection (`01_ingest_detect.ipynb`)
-[![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/01_ingest_detect.ipynb)
+[[GitHub](https://github.com/kkartas/MetDataPy/blob/main/examples/01_ingest_detect.ipynb)] 
+[[nbviewer](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/01_ingest_detect.ipynb)] 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/01_ingest_detect.ipynb)
 
 Focus on data ingestion and automatic column mapping detection.
