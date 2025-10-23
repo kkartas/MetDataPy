@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import List, Optional
 
 import click
 import pandas as pd
@@ -25,7 +26,7 @@ def ingest():
 @click.option("--csv", "csv_path", required=True, type=click.Path(exists=True, dir_okay=False))
 @click.option("--save", "save_path", required=False, type=click.Path(dir_okay=False))
 @click.option("--yes", is_flag=True, help="Accept detected mapping without interactive editing")
-def ingest_detect(csv_path: str, save_path: str | None, yes: bool):
+def ingest_detect(csv_path: str, save_path: Optional[str], yes: bool):
      det = Detector()
      # Read a sample for column choices
      df_head = pd.read_csv(csv_path, nrows=200)
@@ -40,7 +41,7 @@ def ingest_detect(csv_path: str, save_path: str | None, yes: bool):
          click.echo(f"Saved mapping to {save_path}")
 
 
-def _interactive_mapping_wizard(mapping: dict, columns: list[str]) -> dict:
+def _interactive_mapping_wizard(mapping: dict, columns: List[str]) -> dict:
      """Interactive confirm/edit flow for detected mapping."""
      from .mapper import CANONICAL_FIELDS
 
@@ -126,7 +127,7 @@ def qc():
 @click.option("--out", "out_path", required=True, type=click.Path(dir_okay=False))
 @click.option("--report", "report_path", required=False, type=click.Path(dir_okay=False))
 @click.option("--config", "config_path", required=False, type=click.Path(exists=True, dir_okay=False), help="YAML/JSON thresholds for QC")
-def qc_run(in_path: str, out_path: str, report_path: str | None, config_path: str | None):
+def qc_run(in_path: str, out_path: str, report_path: Optional[str], config_path: Optional[str]):
      df = pd.read_parquet(in_path)
      ws = WeatherSet(df)
      cfg = None
@@ -162,7 +163,7 @@ def qc_run(in_path: str, out_path: str, report_path: str | None, config_path: st
 @ingest.command("template")
 @click.option("--out", "out_path", required=False, type=click.Path(dir_okay=False))
 @click.option("--minimal", is_flag=True, help="Exclude optional fields from template")
-def ingest_template(out_path: str | None, minimal: bool):
+def ingest_template(out_path: Optional[str], minimal: bool):
     from .mapper import Mapper
     tpl = Mapper.template(include_optional=not minimal)
     s = json.dumps(tpl, indent=2)
