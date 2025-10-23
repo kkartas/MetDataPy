@@ -21,6 +21,18 @@ mdp qc run --in raw.parquet --out clean.parquet --report qc_report.json \
 Statement of Need
 Modern ML pipelines require clean, unit-consistent, well-flagged meteorological time series. MetDataPy provides a canonical schema, robust ingestion (with autodetection and an interactive mapping wizard), quality control, derived metrics, time-safe ML preparation, and reproducible exports.
 
+## Requirements and Compatibility
+
+**Python:** 3.9+
+
+**Core dependencies:** pandas ≥2.0, numpy ≥1.23, pyarrow ≥13.0, click ≥8.1, pydantic ≥2.4, PyYAML ≥6.0
+
+**NumPy Compatibility:** MetDataPy is compatible with both NumPy 1.x and 2.x. If you encounter compatibility issues with optional visualization dependencies (matplotlib, seaborn), you may need to either:
+- Downgrade NumPy: `pip install 'numpy<2.0'`
+- Or upgrade visualization libraries to versions compatible with NumPy 2.x
+
+The core MetDataPy functionality works with both NumPy versions.
+
 ## Documentation
 
 Full documentation is available on **[Read the Docs](https://metdatapy.readthedocs.io/)**.
