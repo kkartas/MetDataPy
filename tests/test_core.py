@@ -71,17 +71,20 @@ def test_fix_accum_rain():
 def test_resample():
     """Test resampling with QC flag propagation."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=12, freq='10T'),
+        'ts_utc': pd.date_range('2024-01-01', periods=12, freq='10min'),
         'temp_c': [20.0] * 12,
         'qc_temp_c_range': [False] * 10 + [True, False],  # One flagged
     }).set_index('ts_utc')
     
     ws = WeatherSet(df)
-    ws = ws.resample('1H')
+    ws = ws.resample('1h')
     
-    assert len(ws.df) == 1
+    # 12 10-min intervals (00:00-01:50) create 2 hourly bins
+    assert len(ws.df) == 2
     # QC flags should be propagated with OR
     assert 'qc_temp_c_range' in ws.df.columns
+    # Second hour should have the True flag from the 11th entry
+    assert ws.df['qc_temp_c_range'].iloc[1] == True
 
 
 def test_qc_range():
@@ -325,16 +328,18 @@ def test_fix_accum_rain_no_rain_column():
 def test_resample_with_gap_flag():
     """Test that gap flag is properly propagated during resampling."""
     df = pd.DataFrame({
-        'ts_utc': pd.date_range('2024-01-01', periods=12, freq='10T'),
+        'ts_utc': pd.date_range('2024-01-01', periods=12, freq='10min'),
         'temp_c': [20.0] * 12,
         'gap': [False] * 6 + [True] + [False] * 5,
     }).set_index('ts_utc')
     
-    ws = WeatherSet(df).resample('1H')
+    ws = WeatherSet(df).resample('1h')
     
     assert 'gap' in ws.df.columns
     # At least one hour should have a gap
     assert ws.df['gap'].any()
+    # First hour (entries 0-5) should have no gap, second hour (entries 6-11) should have gap
+    assert ws.df['gap'].iloc[1] == True
 
 
 def test_calendar_features_non_cyclical():

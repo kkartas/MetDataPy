@@ -121,8 +121,10 @@ class WeatherSet:
             "solar_wm2": "mean",
             "uv_index": "max",
         }
+        # Filter aggregation dict to only include columns that exist
+        agg = {k: v for k, v in agg.items() if k in self.df.columns}
         grouped = self.df.resample(rule)
-        out = grouped.agg(agg)
+        out = grouped.agg(agg) if agg else pd.DataFrame(index=grouped.groups.keys())
         # Propagate gap as True if any gap in period
         if "gap" in self.df.columns:
             out["gap"] = grouped["gap"].max()
