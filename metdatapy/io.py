@@ -5,6 +5,32 @@ import numpy as np
 
 
 def read_csv(path: str, ts_col: Optional[str] = None) -> pd.DataFrame:
+    """
+    Read CSV file into a DataFrame with optional timestamp parsing.
+    
+    Parameters
+    ----------
+    path : str
+        Path to CSV file
+    ts_col : str, optional
+        Column name to parse as datetime. If provided, attempts to convert
+        this column to pandas datetime format
+    
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with CSV contents
+    
+    Examples
+    --------
+    >>> from metdatapy.io import read_csv
+    >>> df = read_csv('weather.csv', ts_col='DateTime')
+    
+    See Also
+    --------
+    read_parquet : Read Parquet files
+    WeatherSet.from_csv : Higher-level CSV loading with mapping
+    """
     df = pd.read_csv(path)
     if ts_col and ts_col in df.columns:
         df[ts_col] = pd.to_datetime(df[ts_col], errors="coerce")
@@ -12,10 +38,56 @@ def read_csv(path: str, ts_col: Optional[str] = None) -> pd.DataFrame:
 
 
 def read_parquet(path: str) -> pd.DataFrame:
+    """
+    Read Parquet file into a DataFrame.
+    
+    Parameters
+    ----------
+    path : str
+        Path to Parquet file
+    
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with Parquet contents including index
+    
+    Examples
+    --------
+    >>> from metdatapy.io import read_parquet
+    >>> df = read_parquet('weather_clean.parquet')
+    
+    See Also
+    --------
+    to_parquet : Write DataFrame to Parquet format
+    read_csv : Read CSV files
+    """
     return pd.read_parquet(path)
 
 
 def to_parquet(df: pd.DataFrame, path: str) -> None:
+    """
+    Write DataFrame to Parquet file format.
+    
+    Saves DataFrame in Apache Parquet format with index preserved.
+    Parquet provides efficient columnar storage with compression.
+    
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame to save
+    path : str
+        Output file path
+    
+    Examples
+    --------
+    >>> from metdatapy.io import to_parquet
+    >>> to_parquet(clean_df, 'weather_clean.parquet')
+    
+    See Also
+    --------
+    read_parquet : Read Parquet files
+    to_netcdf : Export to CF-compliant NetCDF
+    """
     df.to_parquet(path, index=True)
 
 
