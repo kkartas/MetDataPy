@@ -11,7 +11,6 @@ abstract: >
 authors:
   - family-names: "Kartas"
     given-names: "Kyriakos"
-    email: mail@kkartas.gr
     orcid: "https://orcid.org/0009-0001-6477-4676"
 repository-code: "https://github.com/kkartas/MetDataPy"
 url: "https://github.com/kkartas/MetDataPy"

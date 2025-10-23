@@ -46,9 +46,9 @@ MetDataPy fills this gap by providing an end-to-end workflow specifically design
 
 The package is structured around a core `WeatherSet` class providing a fluent API for chaining operations while maintaining data provenance. The canonical schema defines nine core meteorological variables with standardized names and SI-derived units. Timezone handling ensures all timestamps are converted to UTC, eliminating ambiguity from daylight saving transitions. Special handling detects and corrects accumulated rainfall sensor rollovers. Resampling operations intelligently aggregate variables (mean for intensive quantities, sum for extensive) while conservatively propagating quality flags using logical OR. 
 
-The implementation emphasizes computational efficiency through vectorized pandas and NumPy operations. \autoref{table:performance} shows benchmark results demonstrating that MetDataPy processes one year of 10-minute weather data (52,560 rows) in under 400 milliseconds on consumer hardware, with throughput exceeding 100,000 rows per second for most operations.
+The implementation emphasizes computational efficiency through vectorized pandas and NumPy operations. Table 1 shows benchmark results demonstrating that MetDataPy processes one year of 10-minute weather data (52,560 rows) in under 400 milliseconds on consumer hardware, with throughput exceeding 100,000 rows per second for most operations.
 
-Table: Performance benchmarks for core operations on 52,560 rows (1 year of 10-min data). \label{table:performance}
+: Performance benchmarks for core operations on 52,560 rows (1 year of 10-min data). Benchmarks performed on Intel Core i7 (4 cores, 2.6 GHz base), 16 GB RAM, Python 3.11.9, NumPy 2.3.4, pandas 2.2.3, Windows 10. Results are representative of typical consumer hardware performance.
 
 | Operation | Time (ms) | Throughput (rows/s) |
 |:----------|----------:|--------------------:|
@@ -60,7 +60,7 @@ Table: Performance benchmarks for core operations on 52,560 rows (1 year of 10-m
 
 The command-line interface (`mdp`) provides composable commands for detection, ingestion, quality control, and export, enabling integration into automated pipelines. The Python API allows fine-grained control for Jupyter notebooks and custom scripts. Comprehensive documentation includes API references, tutorials, and a publication-quality Jupyter notebook with visualizations. 
 
-All analyses and benchmarks reported in this paper are fully reproducible using the provided example notebooks (`examples/metdatapy_tutorial.ipynb`), benchmark scripts (`benchmarks/benchmark_performance.py`), and integration tests in the repository. The performance measurements in \autoref{table:performance} can be reproduced by running the benchmark script on comparable hardware.
+All analyses and benchmarks reported in this paper are fully reproducible using the provided example notebooks (`examples/metdatapy_tutorial.ipynb`), benchmark scripts (`benchmarks/benchmark_performance.py`), sample data (`data/sample_weather_2024.csv` - a full year of synthetic 10-minute weather station data with realistic patterns), and integration tests in the repository. The performance measurements in Table 1 can be reproduced by running the benchmark script on comparable hardware.
 
 # Use Cases and Applications
 

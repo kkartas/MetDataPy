@@ -121,7 +121,7 @@ See the `examples/` directory for:
 
 **Additional Resources:**
 - **`README.md`** - Detailed usage guide
-- Sample weather data in `data/sample_weather_2024.csv`
+- **Sample weather data** - `data/sample_weather_2024.csv` contains a full year (2024) of synthetic 10-minute weather station data (52,561 records) with realistic meteorological patterns. This dataset includes temperature (°F), relative humidity (%), pressure (mbar), wind speed/direction (mph/degrees), rainfall (mm), solar radiation (W/m²), and UV index. The data is used in all examples and can be used to test the full MetDataPy workflow.
 
 **Try the notebooks:**
 - 📁 **View on GitHub** - Click GitHub links above for native rendering (works immediately)
