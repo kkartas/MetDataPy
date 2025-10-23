@@ -113,9 +113,9 @@ If you use MetDataPy in your research, please cite it:
 ```bibtex
 @software{metdatapy,
   title = {MetDataPy: A Source-Agnostic Toolkit for Meteorological Time-Series Data},
-  author = {Your Name},
+  author = {Kyriakos Kartas},
   year = {2025},
-  url = {https://github.com/your-org/metdatapy},
+  url = {https://github.com/kkartas/MetDataPy},
   version = {0.0.1}
 }
 ```
