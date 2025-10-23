@@ -76,7 +76,7 @@ The package prioritizes scientific correctness, reproducibility, and ease of use
 
 # Acknowledgements
 
-The development of MetDataPy was inspired by challenges encountered in real-world meteorological data processing workflows and benefited from the extensive Python scientific computing ecosystem, including NumPy [@harris2020array], pandas [@mckinney2010data], and scikit-learn [@pedregosa2011scikit].
+The development of MetDataPy was inspired by challenges encountered in real-world meteorological data processing workflows and benefited from the extensive Python scientific computing ecosystem, including NumPy [@harris2020array], pandas [@mckinney2010data], and scikit-learn [@pedregosa2011scikit]. The project welcomes community contributions following the guidelines in CONTRIBUTING.md, and adheres to the Contributor Covenant Code of Conduct to foster an inclusive and collaborative development environment.
 
 # References
 
