@@ -8,9 +8,14 @@ python -m pip install -e .
 
 ## Detect and save a mapping
 
+**Option 1: Interactive wizard** (recommended for first-time use)
 ```bash
 mdp ingest detect --csv path/to/file.csv --save mapping.yml
-# or interactively confirm/edit without --yes
+```
+This launches an interactive wizard that lets you review and refine auto-detected column mappings. You can press Enter to accept defaults or type custom values.
+
+**Option 2: Non-interactive** (auto-accept detected mappings)
+```bash
 mdp ingest detect --csv path/to/file.csv --save mapping.yml --yes
 ```
 

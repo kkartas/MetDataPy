@@ -6,8 +6,23 @@
 ```bash
 mdp ingest detect --csv FILE.csv [--save mapping.yml] [--yes]
 ```
-- Autodetects timestamp and fields with confidence.
-- Interactive wizard (omit `--yes`) lets you confirm/edit column and unit per field.
+
+Automatically detects timestamp and meteorological field columns with confidence scoring.
+
+**Interactive mode** (default): Prompts you to review and refine each detected mapping
+```bash
+mdp ingest detect --csv weather_data.csv --save mapping.yml
+```
+
+**Non-interactive mode**: Accept all auto-detected mappings without prompts
+```bash
+mdp ingest detect --csv weather_data.csv --save mapping.yml --yes
+```
+
+The interactive wizard displays confidence scores and allows you to:
+- Confirm or change the detected source column for each field
+- Specify units (C/F for temperature, m/s/mph for wind speed, etc.)
+- Type `none` to skip unmapped fields
 
 ### Apply mapping
 ```bash
