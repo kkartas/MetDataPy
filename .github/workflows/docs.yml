@@ -9,12 +9,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
   build:
@@ -40,27 +34,9 @@ jobs:
       - name: Build documentation
         run: mkdocs build --strict --verbose
       
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./site
-
-  deploy:
-    name: Deploy to GitHub Pages
-    # Only deploy on push to main/master (not on PRs)
-    # Note: GitHub Pages must be enabled in repository settings first
-    # See .github/GITHUB_PAGES_SETUP.md for instructions
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    needs: build
-    runs-on: ubuntu-latest
-    
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-        continue-on-error: true  # Don't fail if Pages isn't enabled yet
+      - name: Check documentation build
+        run: |
+          echo "✓ Documentation built successfully"
+          echo "Note: Documentation is hosted on ReadTheDocs at https://metdatapy.readthedocs.io/"
+          ls -la site/
 
