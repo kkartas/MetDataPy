@@ -92,8 +92,8 @@ See the `examples/` directory for:
 
 **Jupyter Notebook:**
 - **`metdatapy_tutorial.ipynb`** - Publication-quality interactive tutorial  
-  [[GitHub](https://github.com/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)] 
-  [[nbviewer](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)] 
+  [![GitHub](https://img.shields.io/badge/view-GitHub-181717?logo=github)](https://github.com/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)
+  [![nbviewer](https://img.shields.io/badge/render-nbviewer-orange?logo=jupyter)](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)
   [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/metdatapy_tutorial.ipynb)
   
   Comprehensive tutorial with:
