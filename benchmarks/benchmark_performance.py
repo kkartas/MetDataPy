@@ -72,7 +72,7 @@ def run_benchmarks():
         t, ws = benchmark_operation("Resample to hourly", 
                                      lambda: ws.resample('1h'))
         results[size_name]['resample'] = t
-        print(f"  Resample (10min→1h): {t:.3f}s ({n_rows/t:,.0f} rows/s)")
+        print(f"  Resample (10min->1h): {t:.3f}s ({n_rows/t:,.0f} rows/s)")
         
         # Benchmark 4: Calendar Features
         ws = WeatherSet(df.copy())
@@ -129,5 +129,5 @@ def run_benchmarks():
 
 if __name__ == "__main__":
     results = run_benchmarks()
-    print("\n✓ Benchmarks complete!")
+    print("\n[OK] Benchmarks complete!")
 
