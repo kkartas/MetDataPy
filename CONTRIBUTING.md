@@ -10,8 +10,10 @@ Thank you for your interest in contributing! This guide explains how to set up y
   python -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
   python -m pip install -U pip
   python -m pip install -e .
-  python -m pip install pytest mkdocs
+  python -m pip install pytest mkdocs mkdocs-material
   ```
+
+**Note:** For regular users, MetDataPy is available on PyPI: `pip install metdatapy`. This development setup is only needed for contributors.
 
 ## Running tests and docs
 

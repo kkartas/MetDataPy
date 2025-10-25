@@ -96,3 +96,4 @@ def test_scaler_serialization():
     assert 'temp' in loaded['columns']
 
 
+

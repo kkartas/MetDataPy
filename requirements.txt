@@ -1,6 +1,6 @@
 # Requirements for Binder and Jupyter notebooks
 # This file enables interactive notebooks via MyBinder.org
-# For production use, install via: pip install -e ".[all]"
+# For production use, install via: pip install metdatapy[all]
 
 # ============================================================================
 # CORE DEPENDENCIES (required)

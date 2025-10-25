@@ -15,8 +15,8 @@ Modern ML pipelines require clean, unit-consistent, well-flagged meteorological 
 ## Quickstart
 
 ```bash
-# Install
-pip install -e .
+# Install MetDataPy
+pip install metdatapy
 
 # Detect column mappings
 mdp ingest detect --csv path/to/file.csv --save mapping.yml
@@ -36,7 +36,7 @@ For detailed installation options (including optional features), see the [Instal
 ### Basic Installation
 
 ```bash
-pip install -e .
+pip install metdatapy
 ```
 
 This installs MetDataPy with core dependencies only. The core package is compatible with both NumPy 1.x and 2.x.
@@ -45,19 +45,29 @@ This installs MetDataPy with core dependencies only. The core package is compati
 
 ```bash
 # For machine learning features
-pip install -e ".[ml]"
+pip install "metdatapy[ml]"
 
 # For NetCDF export functionality
-pip install -e ".[netcdf]"
+pip install "metdatapy[netcdf]"
 
 # For visualization (examples/notebooks)
-pip install -e ".[viz]"
+pip install "metdatapy[viz]"
 
 # For all optional features
-pip install -e ".[all]"
+pip install "metdatapy[all]"
 
 # Or combine specific features
-pip install -e ".[ml,netcdf]"
+pip install "metdatapy[ml,netcdf]"
+```
+
+### Development Installation
+
+For developers or contributors who want to install from source:
+
+```bash
+git clone https://github.com/kkartas/MetDataPy.git
+cd MetDataPy
+pip install -e .
 ```
 
 ### Requirements
@@ -98,7 +108,8 @@ Full documentation is available on **[Read the Docs](https://metdatapy.readthedo
 
 To build documentation locally:
 ```bash
-pip install -r docs/requirements.txt
+pip install metdatapy[all]
+pip install mkdocs mkdocs-material
 mkdocs serve
 # Then open http://localhost:8000
 ```
@@ -190,13 +201,23 @@ See the `examples/` directory for:
 
 **Or run locally:**
 ```bash
-cd examples
+# Install MetDataPy with all optional features
+pip install metdatapy[all]
+
+# Clone the repository for examples
+git clone https://github.com/kkartas/MetDataPy.git
+cd MetDataPy/examples
 jupyter notebook metdatapy_tutorial.ipynb
 ```
 
 **Automated workflow:**
 ```bash
-cd examples
+# Install MetDataPy with all optional features
+pip install metdatapy[all]
+
+# Clone the repository for examples
+git clone https://github.com/kkartas/MetDataPy.git
+cd MetDataPy/examples
 python complete_workflow.py
 ```
 
