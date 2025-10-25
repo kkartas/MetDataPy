@@ -24,24 +24,5 @@ keywords:
   - climate science
   - atmospheric science
 license: MIT
-version: 0.0.1
-date-released: "2025-10-18"
-# TODO: Before JOSS submission, create a Zenodo release and uncomment:
-# doi: 10.5281/zenodo.XXXXXXX
-# Instructions: 
-#   1. Go to https://zenodo.org/
-#   2. Link your GitHub repository
-#   3. Create a release on GitHub (e.g., v0.1.0)
-#   4. Zenodo will automatically create a DOI
-#   5. Add the DOI above
-# preferred-citation:
-#   type: article
-#   title: "MetDataPy: A Source-Agnostic Toolkit for Meteorological Time-Series Data"
-#   authors:
-#     - family-names: "Your Family Name"
-#       given-names: "Your Given Name"
-#   journal: "Journal of Open Source Software"
-#   year: 2025
-#   volume: XX
-#   issue: XX
-#   doi: 10.21105/joss.XXXXX
+version: 1.0.0
+date-released: "2025-10-25"
