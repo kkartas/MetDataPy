@@ -76,7 +76,7 @@ If you use MetDataPy's sample data generation in your work, please cite:
   author = {Kartas, Kyriakos},
   year = {2025},
   url = {https://github.com/kkartas/MetDataPy},
-  version = {0.0.1}
+  version = {1.0.0}
 }
 ```
 

@@ -80,8 +80,8 @@ manifest.to_json("manifest.json")
 ```json
 {
   "version": "1.0",
-  "metdatapy_version": "0.0.1",
-  "created_at": "2025-01-15T10:30:00Z",
+  "metdatapy_version": "1.0.0",
+  "created_at": "2025-10-25T10:30:00Z",
   "pipeline_hash": "a1b2c3d4e5f6g7h8",
   
   "dataset": {
@@ -109,7 +109,7 @@ manifest.to_json("manifest.json")
       "step": "qc",
       "function": "WeatherSet.qc_range",
       "parameters": {},
-      "timestamp": "2025-01-15T10:25:05Z",
+      "timestamp": "2025-10-25T10:25:05Z",
       "duration_seconds": 0.8
     }
   ],
@@ -177,7 +177,7 @@ Validating manifest: manifest.json
 
 Manifest Details:
   Version: 1.0
-  MetDataPy Version: 0.0.1
+  MetDataPy Version: 1.0.0
   Pipeline Steps: 4
   Pipeline Hash: a1b2c3d4e5f6g7h8
   Has QC Report: True
@@ -205,7 +205,7 @@ mdp manifest show manifest.json --format yaml
 Manifest Summary
 ============================================================
 Created: 2025-01-15T10:30:00Z
-MetDataPy Version: 0.0.1
+MetDataPy Version: 1.0.0
 Pipeline Hash: a1b2c3d4e5f6g7h8
 
 Dataset:

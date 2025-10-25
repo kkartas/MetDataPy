@@ -231,7 +231,7 @@ If you use MetDataPy in your research, please cite it:
   author = {Kyriakos Kartas},
   year = {2025},
   url = {https://github.com/kkartas/MetDataPy},
-  version = {0.0.1}
+  version = {1.0.0}
 }
 ```
 
