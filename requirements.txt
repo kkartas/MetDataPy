@@ -1,34 +1,44 @@
-# Binder and Jupyter notebook requirements
+# Requirements for Binder and Jupyter notebooks
 # This file enables interactive notebooks via MyBinder.org
+# For production use, install via: pip install -e ".[all]"
 
-# Core dependencies (from pyproject.toml)
+# ============================================================================
+# CORE DEPENDENCIES (required)
+# ============================================================================
 pandas>=2.0
-# Note: If using matplotlib or other viz libraries with NumPy 2.x compatibility issues,
-# you may need to constrain to numpy<2.0 until those libraries update their builds.
-# The core MetDataPy package works with both NumPy 1.x and 2.x.
-numpy>=1.23
+numpy>=1.23  # Compatible with both NumPy 1.x and 2.x
 pyarrow>=13.0
 click>=8.1
 pydantic>=2.4
 PyYAML>=6.0
 
-# ML dependencies
+# ============================================================================
+# OPTIONAL DEPENDENCIES
+# ============================================================================
+
+# Machine Learning (install via: pip install -e ".[ml]")
 scikit-learn>=1.2
 statsmodels>=0.13
 
-# Export dependencies
+# NetCDF Export (install via: pip install -e ".[netcdf]")
 xarray>=2023.6.0
 netCDF4>=1.6
 cftime>=1.6
 
-# Additional optional dependencies
+# Extras (install via: pip install -e ".[extras]")
 astral>=3.2
 holidays>=0.36
 
-# Notebook dependencies
+# Visualization (install via: pip install -e ".[viz]")
+# NOTE: matplotlib/seaborn may have NumPy 2.x compatibility issues on some platforms.
+# If you encounter errors, use: pip install 'numpy<2.0' matplotlib seaborn
+matplotlib>=3.5
+seaborn>=0.12
+
+# ============================================================================
+# NOTEBOOK DEPENDENCIES (for Binder and local Jupyter usage)
+# ============================================================================
 jupyter>=1.0
 ipykernel>=6.0
 notebook>=7.0
-matplotlib>=3.5
-seaborn>=0.12
 

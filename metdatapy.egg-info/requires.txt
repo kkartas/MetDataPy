@@ -5,13 +5,30 @@ click>=8.1
 pydantic>=2.4
 PyYAML>=6.0
 
-[extras]
+[all]
+scikit-learn>=1.2
+statsmodels>=0.13
 xarray>=2023.6.0
 netCDF4>=1.6
 cftime>=1.6
+astral>=3.2
+holidays>=0.36
+matplotlib>=3.5
+seaborn>=0.12
+
+[extras]
 astral>=3.2
 holidays>=0.36
 
 [ml]
 scikit-learn>=1.2
 statsmodels>=0.13
+
+[netcdf]
+xarray>=2023.6.0
+netCDF4>=1.6
+cftime>=1.6
+
+[viz]
+matplotlib>=3.5
+seaborn>=0.12

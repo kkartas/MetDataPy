@@ -8,30 +8,89 @@
 
 Source-agnostic toolkit for ingesting, cleaning, QC-flagging, enriching, and preparing meteorological time-series data for machine learning.
 
-Quickstart:
+## Statement of Need
+
+Modern ML pipelines require clean, unit-consistent, well-flagged meteorological time series. MetDataPy provides a canonical schema, robust ingestion (with autodetection and an interactive mapping wizard), quality control, derived metrics, time-safe ML preparation, and reproducible exports.
+
+## Quickstart
 
 ```bash
+# Install
 pip install -e .
+
+# Detect column mappings
 mdp ingest detect --csv path/to/file.csv --save mapping.yml
+
+# Apply mapping and ingest data
 mdp ingest apply --csv path/to/file.csv --map mapping.yml --out raw.parquet
+
+# Run quality control
 mdp qc run --in raw.parquet --out clean.parquet --report qc_report.json \
   --config qc_config.yml
 ```
 
-Statement of Need
-Modern ML pipelines require clean, unit-consistent, well-flagged meteorological time series. MetDataPy provides a canonical schema, robust ingestion (with autodetection and an interactive mapping wizard), quality control, derived metrics, time-safe ML preparation, and reproducible exports.
+For detailed installation options (including optional features), see the [Installation](#installation) section below.
 
-## Requirements and Compatibility
+## Installation
+
+### Basic Installation
+
+```bash
+pip install -e .
+```
+
+This installs MetDataPy with core dependencies only. The core package is compatible with both NumPy 1.x and 2.x.
+
+### Installation with Optional Features
+
+```bash
+# For machine learning features
+pip install -e ".[ml]"
+
+# For NetCDF export functionality
+pip install -e ".[netcdf]"
+
+# For visualization (examples/notebooks)
+pip install -e ".[viz]"
+
+# For all optional features
+pip install -e ".[all]"
+
+# Or combine specific features
+pip install -e ".[ml,netcdf]"
+```
+
+### Requirements
 
 **Python:** 3.9+
 
 **Core dependencies:** pandas ≥2.0, numpy ≥1.23, pyarrow ≥13.0, click ≥8.1, pydantic ≥2.4, PyYAML ≥6.0
 
-**NumPy Compatibility:** MetDataPy is compatible with both NumPy 1.x and 2.x. If you encounter compatibility issues with optional visualization dependencies (matplotlib, seaborn), you may need to either:
-- Downgrade NumPy: `pip install 'numpy<2.0'`
-- Or upgrade visualization libraries to versions compatible with NumPy 2.x
+**Optional dependencies:**
+- ML: scikit-learn ≥1.2, statsmodels ≥0.13
+- NetCDF: xarray ≥2023.6.0, netCDF4 ≥1.6, cftime ≥1.6
+- Visualization: matplotlib ≥3.5, seaborn ≥0.12
+- Extras: astral ≥3.2, holidays ≥0.36
 
-The core MetDataPy functionality works with both NumPy versions.
+### NumPy 2.x Compatibility
+
+**Core MetDataPy package:** Fully compatible with both NumPy 1.x and 2.x. All functionality works with either version.
+
+**Visualization dependencies:** Some visualization packages (matplotlib, seaborn) may have compatibility issues with NumPy 2.x on certain platforms. If you encounter errors like:
+
+```
+A module that was compiled using NumPy 1.x cannot be run in NumPy 2.x
+```
+
+**Solutions:**
+1. **For core usage** (data processing, QC, ML prep): No action needed - works with any NumPy version
+2. **For visualization** (running examples with plots):
+   ```bash
+   pip install 'numpy<2.0' matplotlib seaborn
+   ```
+3. **Alternative**: Wait for matplotlib/seaborn to release NumPy 2.x compatible builds
+
+**Note:** This issue only affects optional visualization features. The core MetDataPy functionality (ingestion, QC, derived metrics, ML preparation, NetCDF export) works perfectly with NumPy 2.x.
 
 ## Documentation
 

@@ -2,9 +2,9 @@ Metadata-Version: 2.4
 Name: metdatapy
 Version: 0.0.1
 Summary: Source-agnostic toolkit for ingesting, cleaning, QC, and preparing meteorological time-series data for ML.
-Author: MetDataPy Developers
+Author: Kyriakos Kartas
 License: MIT
-Project-URL: homepage, https://github.com/your-org/metdatapy
+Project-URL: homepage, https://github.com/kkartas/MetDataPy
 Requires-Python: >=3.9
 Description-Content-Type: text/markdown
 License-File: LICENSE
@@ -17,42 +17,132 @@ Requires-Dist: PyYAML>=6.0
 Provides-Extra: ml
 Requires-Dist: scikit-learn>=1.2; extra == "ml"
 Requires-Dist: statsmodels>=0.13; extra == "ml"
+Provides-Extra: netcdf
+Requires-Dist: xarray>=2023.6.0; extra == "netcdf"
+Requires-Dist: netCDF4>=1.6; extra == "netcdf"
+Requires-Dist: cftime>=1.6; extra == "netcdf"
 Provides-Extra: extras
-Requires-Dist: xarray>=2023.6.0; extra == "extras"
-Requires-Dist: netCDF4>=1.6; extra == "extras"
-Requires-Dist: cftime>=1.6; extra == "extras"
 Requires-Dist: astral>=3.2; extra == "extras"
 Requires-Dist: holidays>=0.36; extra == "extras"
+Provides-Extra: viz
+Requires-Dist: matplotlib>=3.5; extra == "viz"
+Requires-Dist: seaborn>=0.12; extra == "viz"
+Provides-Extra: all
+Requires-Dist: scikit-learn>=1.2; extra == "all"
+Requires-Dist: statsmodels>=0.13; extra == "all"
+Requires-Dist: xarray>=2023.6.0; extra == "all"
+Requires-Dist: netCDF4>=1.6; extra == "all"
+Requires-Dist: cftime>=1.6; extra == "all"
+Requires-Dist: astral>=3.2; extra == "all"
+Requires-Dist: holidays>=0.36; extra == "all"
+Requires-Dist: matplotlib>=3.5; extra == "all"
+Requires-Dist: seaborn>=0.12; extra == "all"
 Dynamic: license-file
 
 # MetDataPy
 
 [![CI](https://github.com/kkartas/MetDataPy/actions/workflows/ci.yml/badge.svg)](https://github.com/kkartas/MetDataPy/actions/workflows/ci.yml)
-[![Documentation](https://github.com/kkartas/MetDataPy/actions/workflows/docs.yml/badge.svg)](https://github.com/kkartas/MetDataPy/actions/workflows/docs.yml)
+[![Documentation Status](https://readthedocs.org/projects/metdatapy/badge/?version=latest)](https://metdatapy.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/kkartas/MetDataPy/branch/main/graph/badge.svg)](https://codecov.io/gh/kkartas/MetDataPy)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Source-agnostic toolkit for ingesting, cleaning, QC-flagging, enriching, and preparing meteorological time-series data for machine learning.
 
-Quickstart:
+## Statement of Need
+
+Modern ML pipelines require clean, unit-consistent, well-flagged meteorological time series. MetDataPy provides a canonical schema, robust ingestion (with autodetection and an interactive mapping wizard), quality control, derived metrics, time-safe ML preparation, and reproducible exports.
+
+## Quickstart
 
 ```bash
+# Install
 pip install -e .
+
+# Detect column mappings
 mdp ingest detect --csv path/to/file.csv --save mapping.yml
+
+# Apply mapping and ingest data
 mdp ingest apply --csv path/to/file.csv --map mapping.yml --out raw.parquet
+
+# Run quality control
 mdp qc run --in raw.parquet --out clean.parquet --report qc_report.json \
   --config qc_config.yml
 ```
 
-Statement of Need
-Modern ML pipelines require clean, unit-consistent, well-flagged meteorological time series. MetDataPy provides a canonical schema, robust ingestion (with autodetection and an interactive mapping wizard), quality control, derived metrics, time-safe ML preparation, and reproducible exports.
+For detailed installation options (including optional features), see the [Installation](#installation) section below.
 
-Documentation
-- Build with MkDocs (optional):
-  - Install: `python -m pip install mkdocs`
-  - Serve: `mkdocs serve`
-  - Build: `mkdocs build`
+## Installation
+
+### Basic Installation
+
+```bash
+pip install -e .
+```
+
+This installs MetDataPy with core dependencies only. The core package is compatible with both NumPy 1.x and 2.x.
+
+### Installation with Optional Features
+
+```bash
+# For machine learning features
+pip install -e ".[ml]"
+
+# For NetCDF export functionality
+pip install -e ".[netcdf]"
+
+# For visualization (examples/notebooks)
+pip install -e ".[viz]"
+
+# For all optional features
+pip install -e ".[all]"
+
+# Or combine specific features
+pip install -e ".[ml,netcdf]"
+```
+
+### Requirements
+
+**Python:** 3.9+
+
+**Core dependencies:** pandas ≥2.0, numpy ≥1.23, pyarrow ≥13.0, click ≥8.1, pydantic ≥2.4, PyYAML ≥6.0
+
+**Optional dependencies:**
+- ML: scikit-learn ≥1.2, statsmodels ≥0.13
+- NetCDF: xarray ≥2023.6.0, netCDF4 ≥1.6, cftime ≥1.6
+- Visualization: matplotlib ≥3.5, seaborn ≥0.12
+- Extras: astral ≥3.2, holidays ≥0.36
+
+### NumPy 2.x Compatibility
+
+**Core MetDataPy package:** Fully compatible with both NumPy 1.x and 2.x. All functionality works with either version.
+
+**Visualization dependencies:** Some visualization packages (matplotlib, seaborn) may have compatibility issues with NumPy 2.x on certain platforms. If you encounter errors like:
+
+```
+A module that was compiled using NumPy 1.x cannot be run in NumPy 2.x
+```
+
+**Solutions:**
+1. **For core usage** (data processing, QC, ML prep): No action needed - works with any NumPy version
+2. **For visualization** (running examples with plots):
+   ```bash
+   pip install 'numpy<2.0' matplotlib seaborn
+   ```
+3. **Alternative**: Wait for matplotlib/seaborn to release NumPy 2.x compatible builds
+
+**Note:** This issue only affects optional visualization features. The core MetDataPy functionality (ingestion, QC, derived metrics, ML preparation, NetCDF export) works perfectly with NumPy 2.x.
+
+## Documentation
+
+Full documentation is available on **[Read the Docs](https://metdatapy.readthedocs.io/)**.
+
+To build documentation locally:
+```bash
+pip install -r docs/requirements.txt
+mkdocs serve
+# Then open http://localhost:8000
+```
 
 Features
 - Canonical schema with UTC index and metric units
@@ -62,6 +152,7 @@ Features
 - Derived: dew point, VPD, heat index, wind chill
 - ML prep: supervised table builder (lags, horizons), time-safe split, scaling (Standard/MinMax/Robust)
 - Export: Parquet and CF-compliant NetCDF with metadata
+- **Performance:** Processes 1 year of 10-min data in <0.5s (see `benchmarks/`)
 
 Quality Control
 - Range checks with boolean flags (`qc_<var>_range`)
@@ -111,18 +202,40 @@ train_scaled = apply_scaler(splits["train"], scaler)
 ## Examples
 
 See the `examples/` directory for:
-- **`metdatapy_tutorial.ipynb`** - Publication-quality Jupyter notebook with visualizations and scientific references
-- **`complete_workflow.py`** - Automated Python script for batch processing
-- **`README.md`** - Detailed usage guide
-- Sample weather data in `data/sample_weather_2024.csv`
 
-Run the interactive tutorial:
+**Jupyter Notebook:**
+- **`metdatapy_tutorial.ipynb`** - Publication-quality interactive tutorial  
+  [![GitHub](https://img.shields.io/badge/view-GitHub-181717?logo=github)](https://github.com/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)
+  [![nbviewer](https://img.shields.io/badge/render-nbviewer-orange?logo=jupyter)](https://nbviewer.org/github/kkartas/MetDataPy/blob/main/examples/metdatapy_tutorial.ipynb)
+  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kkartas/MetDataPy/main?filepath=examples/metdatapy_tutorial.ipynb)
+  
+  Comprehensive tutorial with:
+  - Step-by-step workflow with scientific references
+  - Publication-ready visualizations (QC flags, derived metrics)
+  - Mathematical formulas and physical validation
+  - Complete reproducible pipeline
+
+**Python Scripts:**
+- **`complete_workflow.py`** - Automated batch processing script
+- **`netcdf_export_example.py`** - CF-compliant NetCDF export demonstration
+
+**Additional Resources:**
+- **`README.md`** - Detailed usage guide
+- **Sample weather data** - `data/sample_weather_2024.csv` contains a full year (2024) of synthetic 10-minute weather station data (52,561 records) with realistic meteorological patterns. This dataset includes temperature (°F), relative humidity (%), pressure (mbar), wind speed/direction (mph/degrees), rainfall (mm), solar radiation (W/m²), and UV index. The data is used in all examples and can be used to test the full MetDataPy workflow.
+
+**Try the notebooks:**
+- 📁 **View on GitHub** - Click GitHub links above for native rendering (works immediately)
+- 🔍 **View on nbviewer** - Better rendering with MathJax support
+  - *Note: nbviewer may show 400 errors for new/recently updated files due to caching. If this happens, use GitHub view or try again in a few minutes.*
+- 🚀 **Run interactively** - Click Binder badge for live Jupyter environment (takes ~2 min to launch)
+
+**Or run locally:**
 ```bash
 cd examples
 jupyter notebook metdatapy_tutorial.ipynb
 ```
 
-Or run the automated workflow:
+**Automated workflow:**
 ```bash
 cd examples
 python complete_workflow.py
@@ -135,9 +248,9 @@ If you use MetDataPy in your research, please cite it:
 ```bibtex
 @software{metdatapy,
   title = {MetDataPy: A Source-Agnostic Toolkit for Meteorological Time-Series Data},
-  author = {Your Name},
+  author = {Kyriakos Kartas},
   year = {2025},
-  url = {https://github.com/your-org/metdatapy},
+  url = {https://github.com/kkartas/MetDataPy},
   version = {0.0.1}
 }
 ```
