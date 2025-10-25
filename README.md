@@ -118,6 +118,7 @@ mkdocs serve
 Features
 - Canonical schema with UTC index and metric units
 - Ingestion from CSV with mapping autodetection and interactive mapping wizard
+- **Automatic encoding detection** for CSV files (UTF-8, UTF-16, Latin-1, CP1252, ISO-8859-1)
 - Unit normalization, rain accumulation fix-up, gap insertion with `gap` flag
 - WeatherSet resampling/aggregation, calendar features, exogenous joins
 - Derived: dew point, VPD, heat index, wind chill

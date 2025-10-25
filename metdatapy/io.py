@@ -1,12 +1,41 @@
 from typing import Optional, Dict, Any
 import pandas as pd
-import xarray as xr
 import numpy as np
+
+
+def _detect_encoding(path: str) -> str:
+    """
+    Detect file encoding by trying common encodings.
+    
+    Parameters
+    ----------
+    path : str
+        Path to file
+    
+    Returns
+    -------
+    str
+        Detected encoding name
+    """
+    encodings = ['utf-8', 'utf-16', 'latin-1', 'cp1252', 'iso-8859-1']
+    
+    for encoding in encodings:
+        try:
+            with open(path, 'r', encoding=encoding) as f:
+                f.read(1024)  # Try to read first 1KB
+            return encoding
+        except (UnicodeDecodeError, UnicodeError):
+            continue
+    
+    # Fallback to utf-8 with error handling
+    return 'utf-8'
 
 
 def read_csv(path: str, ts_col: Optional[str] = None) -> pd.DataFrame:
     """
     Read CSV file into a DataFrame with optional timestamp parsing.
+    
+    Automatically detects file encoding (UTF-8, UTF-16, Latin-1, CP1252, ISO-8859-1).
     
     Parameters
     ----------
@@ -31,7 +60,8 @@ def read_csv(path: str, ts_col: Optional[str] = None) -> pd.DataFrame:
     read_parquet : Read Parquet files
     WeatherSet.from_csv : Higher-level CSV loading with mapping
     """
-    df = pd.read_csv(path)
+    encoding = _detect_encoding(path)
+    df = pd.read_csv(path, encoding=encoding, encoding_errors='replace')
     if ts_col and ts_col in df.columns:
         df[ts_col] = pd.to_datetime(df[ts_col], errors="coerce")
     return df
@@ -100,6 +130,9 @@ def to_netcdf(
     """
     Export WeatherSet DataFrame to CF-compliant NetCDF4 file.
     
+    Requires xarray and netCDF4 packages. Install with:
+    pip install metdatapy[netcdf]
+    
     Parameters
     ----------
     df : pd.DataFrame
@@ -115,7 +148,20 @@ def to_netcdf(
     -----
     Follows CF Conventions v1.8 for climate and forecast metadata:
     http://cfconventions.org/
+    
+    Raises
+    ------
+    ImportError
+        If xarray or netCDF4 is not installed
     """
+    try:
+        import xarray as xr
+    except ImportError as e:
+        raise ImportError(
+            "NetCDF export requires xarray and netCDF4. "
+            "Install with: pip install metdatapy[netcdf]"
+        ) from e
+    
     metadata = metadata or {}
     station_metadata = station_metadata or {}
     
@@ -316,6 +362,9 @@ def from_netcdf(path: str) -> pd.DataFrame:
     """
     Read a CF-compliant NetCDF file into a WeatherSet-compatible DataFrame.
     
+    Requires xarray and netCDF4 packages. Install with:
+    pip install metdatapy[netcdf]
+    
     Parameters
     ----------
     path : str
@@ -325,7 +374,20 @@ def from_netcdf(path: str) -> pd.DataFrame:
     -------
     pd.DataFrame
         DataFrame with time index and meteorological variables
+    
+    Raises
+    ------
+    ImportError
+        If xarray or netCDF4 is not installed
     """
+    try:
+        import xarray as xr
+    except ImportError as e:
+        raise ImportError(
+            "NetCDF import requires xarray and netCDF4. "
+            "Install with: pip install metdatapy[netcdf]"
+        ) from e
+    
     ds = xr.open_dataset(path)
     
     # Convert to DataFrame

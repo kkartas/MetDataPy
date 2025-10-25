@@ -7,7 +7,7 @@ import pandas as pd
 
 from .mapper import Detector, Mapper
 from .core import WeatherSet
-from .io import to_parquet
+from .io import to_parquet, _detect_encoding
 
 
 @click.group()
@@ -28,8 +28,9 @@ def ingest():
 @click.option("--yes", is_flag=True, help="Accept detected mapping without interactive editing")
 def ingest_detect(csv_path: str, save_path: Optional[str], yes: bool):
      det = Detector()
-     # Read a sample for column choices
-     df_head = pd.read_csv(csv_path, nrows=200)
+     # Read a sample for column choices with automatic encoding detection
+     encoding = _detect_encoding(csv_path)
+     df_head = pd.read_csv(csv_path, nrows=200, encoding=encoding, encoding_errors='replace')
      mapping = det.detect(df_head)
 
      if not yes:
@@ -110,7 +111,8 @@ def _interactive_mapping_wizard(mapping: dict, columns: List[str]) -> dict:
 @click.option("--out", "out_path", required=True, type=click.Path(dir_okay=False))
 def ingest_apply(csv_path: str, map_path: str, out_path: str):
      mapping = Mapper.load(map_path)
-     df = pd.read_csv(csv_path)
+     encoding = _detect_encoding(csv_path)
+     df = pd.read_csv(csv_path, encoding=encoding, encoding_errors='replace')
      ws = WeatherSet.from_mapping(df, mapping).to_utc().normalize_units(mapping)
      to_parquet(ws.to_dataframe(), out_path)
      click.echo(f"Wrote {out_path}")
