@@ -1,6 +1,6 @@
 # MetDataPy
 
-[![PyPI version](https://img.shields.io/pypi/v/etl-forge?style=flat)](https://pypi.org/project/MetDataPy/)
+[![PyPI version](https://img.shields.io/pypi/v/MetDataPy?style=flat)](https://pypi.org/project/MetDataPy/)
 [![CI](https://github.com/kkartas/MetDataPy/actions/workflows/ci.yml/badge.svg)](https://github.com/kkartas/MetDataPy/actions/workflows/ci.yml)
 [![Documentation Status](https://readthedocs.org/projects/metdatapy/badge/?version=latest)](https://metdatapy.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/kkartas/MetDataPy/branch/main/graph/badge.svg)](https://codecov.io/gh/kkartas/MetDataPy)
