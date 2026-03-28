@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Tuple
 import pandas as pd
 import yaml
 
+from .io import read_csv
 from .units import (
     parse_unit_hint,
     fahrenheit_to_c,
@@ -38,6 +39,9 @@ class FieldGuess:
     source_col: str
     unit: Optional[str]
     confidence: float
+    name_score: float = 0.0
+    plausibility: float = 0.0
+    unit_supported: bool = False
 
 
 class Mapper:
@@ -68,6 +72,8 @@ class Mapper:
 class Detector:
     """Heuristic mapping detector based on column names and unit hints."""
 
+    MIN_FIELD_CONFIDENCE = 0.7
+
     TIME_CANDIDATES = [
         r"^time$",
         r"^date$",
@@ -90,7 +96,7 @@ class Detector:
 
     def detect(self, df: pd.DataFrame) -> Dict:
         cols = list(df.columns)
-        lower_map = {c: c.lower() for c in cols}
+        lower_map = {c: str(c).lower() for c in cols}
 
         # Timestamp detection with scoring
         ts_col = None
@@ -109,9 +115,8 @@ class Detector:
                 best_ts_score = score
                 ts_col = c
 
-        guesses: List[FieldGuess] = []
+        candidates: List[FieldGuess] = []
         for canonical, patterns in self.FIELD_PATTERNS:
-            best: Optional[FieldGuess] = None
             for c in cols:
                 if c == ts_col:
                     continue
@@ -119,34 +124,73 @@ class Detector:
                 name_score = 0.0
                 if any(re.search(p, lc) for p in patterns):
                     name_score = 0.4
-                hinted_unit = parse_unit_hint(c)
+                hinted_unit = parse_unit_hint(str(c))
                 unit_candidates, to_canonical = self._unit_candidates_for(canonical)
-                chosen_unit, plaus = self._best_unit_and_plausibility(canonical, df[c], hinted_unit, unit_candidates, to_canonical)
-                unit_bonus = 0.1 if hinted_unit else 0.0
+                unit_supported = hinted_unit in unit_candidates and hinted_unit is not None
+                has_evidence = name_score > 0.0 or unit_supported
+                if not has_evidence:
+                    continue
+                chosen_unit, plaus = self._best_unit_and_plausibility(
+                    canonical,
+                    df[c],
+                    hinted_unit,
+                    unit_candidates,
+                    to_canonical,
+                )
+                unit_bonus = 0.1 if unit_supported else 0.0
                 conf = name_score + unit_bonus + (0.6 * plaus)
                 if name_score >= 0.4 and plaus >= 0.8:
                     conf += 0.1
-                candidate = FieldGuess(canonical, c, chosen_unit, conf)
-                if best is None or candidate.confidence > best.confidence:
-                    best = candidate
-            if best is not None:
-                guesses.append(best)
+                if conf < self.MIN_FIELD_CONFIDENCE:
+                    continue
+                candidates.append(
+                    FieldGuess(
+                        canonical=canonical,
+                        source_col=c,
+                        unit=chosen_unit,
+                        confidence=conf,
+                        name_score=name_score,
+                        plausibility=plaus,
+                        unit_supported=unit_supported,
+                    )
+                )
+
+        guesses: Dict[str, FieldGuess] = {}
+        used_columns = set()
+        ranked_candidates = sorted(
+            candidates,
+            key=lambda guess: (
+                -guess.confidence,
+                -guess.name_score,
+                -guess.plausibility,
+                guess.canonical,
+                str(guess.source_col),
+            ),
+        )
+        for candidate in ranked_candidates:
+            if candidate.canonical in guesses or candidate.source_col in used_columns:
+                continue
+            guesses[candidate.canonical] = candidate
+            used_columns.add(candidate.source_col)
 
         mapping = {
             "version": 1,
             "ts": {"col": ts_col},
             "fields": {},
         }
-        for g in guesses:
-            mapping["fields"][g.canonical] = {
-                "col": g.source_col,
-                "unit": g.unit,
-                "confidence": round(g.confidence, 2),
+        for canonical, _ in self.FIELD_PATTERNS:
+            guess = guesses.get(canonical)
+            if guess is None:
+                continue
+            mapping["fields"][guess.canonical] = {
+                "col": guess.source_col,
+                "unit": guess.unit,
+                "confidence": round(guess.confidence, 2),
             }
         return mapping
 
     def detect_from_csv(self, path: str, nrows: int = 1000) -> Dict:
-        df = pd.read_csv(path, nrows=nrows)
+        df = read_csv(path, nrows=nrows)
         return self.detect(df)
 
     def _unit_candidates_for(self, canonical: str):

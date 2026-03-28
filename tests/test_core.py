@@ -33,6 +33,31 @@ def test_from_csv_basic():
     os.remove(csv_path)
 
 
+def test_from_csv_utf16(tmp_path):
+    """Test WeatherSet.from_csv() with non-UTF-8 input."""
+    df = pd.DataFrame({
+        'timestamp': ['2024-01-01 00:00', '2024-01-01 01:00'],
+        'temperature': [20, 21],
+        'humidity': [50, 55],
+    })
+    csv_path = tmp_path / "utf16_weather.csv"
+    df.to_csv(csv_path, index=False, encoding="utf-16")
+
+    mapping = {
+        'ts': {'col': 'timestamp'},
+        'fields': {
+            'temp_c': {'col': 'temperature', 'unit': 'C'},
+            'rh_pct': {'col': 'humidity', 'unit': '%'},
+        }
+    }
+
+    ws = WeatherSet.from_csv(str(csv_path), mapping)
+
+    assert len(ws.df) == 2
+    assert 'temp_c' in ws.df.columns
+    assert ws.df.index.name == 'ts_utc'
+
+
 def test_to_utc():
     """Test timezone conversion to UTC."""
     df = pd.DataFrame({

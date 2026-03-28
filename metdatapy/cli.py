@@ -4,10 +4,11 @@ from typing import List, Optional
 
 import click
 import pandas as pd
+import yaml
 
 from .mapper import Detector, Mapper
 from .core import WeatherSet
-from .io import to_parquet, _detect_encoding
+from .io import read_csv, to_parquet
 
 
 @click.group()
@@ -28,9 +29,7 @@ def ingest():
 @click.option("--yes", is_flag=True, help="Accept detected mapping without interactive editing")
 def ingest_detect(csv_path: str, save_path: Optional[str], yes: bool):
      det = Detector()
-     # Read a sample for column choices with automatic encoding detection
-     encoding = _detect_encoding(csv_path)
-     df_head = pd.read_csv(csv_path, nrows=200, encoding=encoding, encoding_errors='replace')
+     df_head = read_csv(csv_path, nrows=200)
      mapping = det.detect(df_head)
 
      if not yes:
@@ -111,8 +110,7 @@ def _interactive_mapping_wizard(mapping: dict, columns: List[str]) -> dict:
 @click.option("--out", "out_path", required=True, type=click.Path(dir_okay=False))
 def ingest_apply(csv_path: str, map_path: str, out_path: str):
      mapping = Mapper.load(map_path)
-     encoding = _detect_encoding(csv_path)
-     df = pd.read_csv(csv_path, encoding=encoding, encoding_errors='replace')
+     df = read_csv(csv_path)
      ws = WeatherSet.from_mapping(df, mapping).to_utc().normalize_units(mapping)
      to_parquet(ws.to_dataframe(), out_path)
      click.echo(f"Wrote {out_path}")
@@ -166,14 +164,13 @@ def qc_run(in_path: str, out_path: str, report_path: Optional[str], config_path:
 @click.option("--out", "out_path", required=False, type=click.Path(dir_okay=False))
 @click.option("--minimal", is_flag=True, help="Exclude optional fields from template")
 def ingest_template(out_path: Optional[str], minimal: bool):
-    from .mapper import Mapper
     tpl = Mapper.template(include_optional=not minimal)
-    s = json.dumps(tpl, indent=2)
+    s = yaml.safe_dump(tpl, sort_keys=False, allow_unicode=True)
     if out_path:
-        Path(out_path).write_text(s, encoding="utf-8")
+        Mapper.save(tpl, out_path)
         click.echo(f"Wrote mapping template to {out_path}")
     else:
-        click.echo(s)
+        click.echo(s.rstrip())
 
 
 @main.group()

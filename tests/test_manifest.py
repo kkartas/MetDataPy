@@ -1,6 +1,9 @@
 import pandas as pd
 import tempfile
 from pathlib import Path
+
+import pytest
+
 from metdatapy.manifest import (
     Manifest,
     ManifestBuilder,
@@ -155,4 +158,62 @@ def test_manifest_reproducibility():
     
     assert results["same_pipeline"] is True
     assert results["same_features"] is True
+
+
+def test_manifest_reproducibility_detects_scaler_presence_mismatch():
+    df = pd.DataFrame({
+        "temp_c": [10.0, 11.0],
+    }, index=pd.to_datetime(["2025-01-01", "2025-01-02"], utc=True))
+
+    builder1 = ManifestBuilder(source="test.csv")
+    builder1.set_dataset_info(df)
+    builder1.set_scaler(ScalerParamsModel(
+        method="standard",
+        columns=["temp_c"],
+        parameters={"temp_c": {"mean": 10.5, "scale": 0.5}},
+    ))
+    manifest1 = builder1.build()
+
+    builder2 = ManifestBuilder(source="test.csv")
+    builder2.set_dataset_info(df)
+    manifest2 = builder2.build()
+
+    results = manifest1.validate_reproducibility(manifest2)
+
+    assert results["same_scaler"] is False
+
+
+def test_manifest_reproducibility_detects_scaler_parameter_mismatch():
+    df = pd.DataFrame({
+        "temp_c": [10.0, 11.0],
+    }, index=pd.to_datetime(["2025-01-01", "2025-01-02"], utc=True))
+
+    builder1 = ManifestBuilder(source="test.csv")
+    builder1.set_dataset_info(df)
+    builder1.set_scaler(ScalerParamsModel(
+        method="standard",
+        columns=["temp_c"],
+        parameters={"temp_c": {"mean": 10.5, "scale": 0.5}},
+    ))
+    manifest1 = builder1.build()
+
+    builder2 = ManifestBuilder(source="test.csv")
+    builder2.set_dataset_info(df)
+    builder2.set_scaler(ScalerParamsModel(
+        method="standard",
+        columns=["temp_c"],
+        parameters={"temp_c": {"mean": 10.5, "scale": 1.0}},
+    ))
+    manifest2 = builder2.build()
+
+    results = manifest1.validate_reproducibility(manifest2)
+
+    assert results["same_scaler"] is False
+
+
+def test_manifest_builder_rejects_non_datetime_index():
+    df = pd.DataFrame({"temp_c": [10.0, 11.0]}, index=[0, 1])
+
+    with pytest.raises(ValueError, match="DatetimeIndex"):
+        ManifestBuilder(source="test.csv").set_dataset_info(df)
 

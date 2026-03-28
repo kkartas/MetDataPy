@@ -152,15 +152,20 @@ class Manifest(BaseModel):
     
     def validate_reproducibility(self, other: "Manifest") -> Dict[str, bool]:
         """Compare two manifests for reproducibility."""
+        if self.scaler is None and other.scaler is None:
+            same_scaler = True
+        elif self.scaler is None or other.scaler is None:
+            same_scaler = False
+        else:
+            same_scaler = self.scaler.model_dump() == other.scaler.model_dump()
+
         return {
             "same_pipeline": self.pipeline_hash == other.pipeline_hash,
             "same_version": self.metdatapy_version == other.metdatapy_version,
             "same_features": (
                 self.features.original_features == other.features.original_features
             ),
-            "same_scaler": (
-                self.scaler.method == other.scaler.method if self.scaler and other.scaler else True
-            ),
+            "same_scaler": same_scaler,
         }
 
 
@@ -204,6 +209,9 @@ class ManifestBuilder:
         frequency: Optional[str] = None,
     ) -> "ManifestBuilder":
         """Set dataset information from DataFrame."""
+        if not isinstance(df.index, pd.DatetimeIndex):
+            raise ValueError("Dataset info requires a pandas DatetimeIndex")
+
         missing = {col: int(df[col].isna().sum()) for col in df.columns if df[col].isna().any()}
         
         self.dataset_info = DatasetInfo(

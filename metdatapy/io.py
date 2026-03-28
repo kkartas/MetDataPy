@@ -31,7 +31,23 @@ def _detect_encoding(path: str) -> str:
     return 'utf-8'
 
 
-def read_csv(path: str, ts_col: Optional[str] = None) -> pd.DataFrame:
+def _read_csv_with_detected_encoding(
+    path: str,
+    *,
+    nrows: Optional[int] = None,
+) -> pd.DataFrame:
+    """Read CSV using the first compatible encoding from the supported list."""
+    encoding = _detect_encoding(path)
+    read_kwargs: Dict[str, Any] = {
+        "encoding": encoding,
+        "encoding_errors": "replace",
+    }
+    if nrows is not None:
+        read_kwargs["nrows"] = nrows
+    return pd.read_csv(path, **read_kwargs)
+
+
+def read_csv(path: str, ts_col: Optional[str] = None, nrows: Optional[int] = None) -> pd.DataFrame:
     """
     Read CSV file into a DataFrame with optional timestamp parsing.
     
@@ -44,6 +60,8 @@ def read_csv(path: str, ts_col: Optional[str] = None) -> pd.DataFrame:
     ts_col : str, optional
         Column name to parse as datetime. If provided, attempts to convert
         this column to pandas datetime format
+    nrows : int, optional
+        Number of rows to read. If omitted, reads the full file.
     
     Returns
     -------
@@ -60,8 +78,7 @@ def read_csv(path: str, ts_col: Optional[str] = None) -> pd.DataFrame:
     read_parquet : Read Parquet files
     WeatherSet.from_csv : Higher-level CSV loading with mapping
     """
-    encoding = _detect_encoding(path)
-    df = pd.read_csv(path, encoding=encoding, encoding_errors='replace')
+    df = _read_csv_with_detected_encoding(path, nrows=nrows)
     if ts_col and ts_col in df.columns:
         df[ts_col] = pd.to_datetime(df[ts_col], errors="coerce")
     return df

@@ -4,6 +4,7 @@ from typing import Dict, Optional
 
 import pandas as pd
 
+from .io import read_csv
 from .utils import CANONICAL_INDEX, CANONICAL_VARS, ensure_datetime_utc
 from .units import (
     fahrenheit_to_c,
@@ -32,7 +33,7 @@ class WeatherSet:
 
     @classmethod
     def from_csv(cls, path: str, mapping: Dict) -> "WeatherSet":
-        df = pd.read_csv(path)
+        df = read_csv(path)
         return cls.from_mapping(df, mapping)
 
     @classmethod
@@ -216,5 +217,4 @@ class WeatherSet:
             from .derive import wind_chill_c
             self.df["wind_chill_c"] = wind_chill_c(self.df["temp_c"], self.df["wspd_ms"]).astype(float)
         return self
-
 

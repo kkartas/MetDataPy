@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: metdatapy
-Version: 1.0.0
+Version: 1.0.1
 Summary: Source-agnostic toolkit for ingesting, cleaning, QC, and preparing meteorological time-series data for ML.
 Author: Kyriakos Kartas
 License: MIT

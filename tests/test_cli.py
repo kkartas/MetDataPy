@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+import yaml
 from click.testing import CliRunner
 
 from metdatapy.cli import main
@@ -118,6 +119,25 @@ class TestIngestDetect:
         ])
         assert result.exit_code != 0
 
+    def test_detect_utf16_input(self, runner, tmp_path):
+        """Test detection on UTF-16 encoded CSV input."""
+        csv_file = tmp_path / "utf16_detect.csv"
+        df = pd.DataFrame({
+            "timestamp": pd.date_range("2024-01-01", periods=3, freq="1h"),
+            "temperature": [20.0, 20.5, 21.0],
+            "humidity": [60.0, 61.0, 62.0],
+        })
+        df.to_csv(csv_file, index=False, encoding="utf-16")
+
+        result = runner.invoke(main, [
+            "ingest", "detect",
+            "--csv", str(csv_file),
+            "--yes"
+        ])
+
+        assert result.exit_code == 0
+        assert "temperature" in result.output
+
 
 class TestIngestApply:
     """Tests for 'mdp ingest apply' command."""
@@ -162,6 +182,34 @@ class TestIngestApply:
         ])
         assert result.exit_code != 0
 
+    def test_apply_utf16_input(self, runner, sample_mapping, tmp_path):
+        """Test applying a mapping to UTF-16 encoded CSV input."""
+        csv_file = tmp_path / "utf16_apply.csv"
+        output_file = tmp_path / "output.parquet"
+        df = pd.DataFrame({
+            "timestamp": pd.date_range("2024-01-01", periods=3, freq="1h"),
+            "temperature": [20.0, 20.5, 21.0],
+            "humidity": [60.0, 61.0, 62.0],
+            "pressure": [1013.0, 1013.1, 1013.2],
+            "wind_speed": [5.0, 5.2, 5.4],
+            "wind_direction": [180.0, 181.0, 182.0],
+            "rainfall": [0.0, 0.0, 0.1],
+        })
+        df.to_csv(csv_file, index=False, encoding="utf-16")
+
+        result = runner.invoke(main, [
+            "ingest", "apply",
+            "--csv", str(csv_file),
+            "--map", sample_mapping,
+            "--out", str(output_file)
+        ])
+
+        assert result.exit_code == 0
+        assert output_file.exists()
+        out_df = pd.read_parquet(output_file)
+        assert "temp_c" in out_df.columns
+        assert len(out_df) == 3
+
 
 class TestIngestTemplate:
     """Tests for 'mdp ingest template' command."""
@@ -170,8 +218,9 @@ class TestIngestTemplate:
         """Test template output to stdout."""
         result = runner.invoke(main, ["ingest", "template"])
         assert result.exit_code == 0
-        assert "ts" in result.output
-        assert "fields" in result.output
+        content = yaml.safe_load(result.output)
+        assert "ts" in content
+        assert "fields" in content
         
     def test_template_to_file(self, runner, tmp_path):
         """Test template save to file."""
@@ -184,8 +233,8 @@ class TestIngestTemplate:
         assert output_file.exists()
         assert "Wrote mapping template" in result.output
         
-        # Verify it's valid JSON
-        content = json.loads(output_file.read_text())
+        # Verify it's valid YAML
+        content = yaml.safe_load(output_file.read_text())
         assert "ts" in content
         assert "fields" in content
         

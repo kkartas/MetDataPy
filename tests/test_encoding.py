@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+from metdatapy.mapper import Detector
 from metdatapy.io import read_csv, _detect_encoding
 
 
@@ -69,6 +70,23 @@ def test_read_csv_with_utf16(tmp_path):
     assert len(result) == 2
     assert "DateTime" in result.columns
     assert "temp_c" in result.columns
+
+
+def test_detector_detect_from_csv_with_utf16(tmp_path):
+    """Test detector CSV loading path with UTF-16 input."""
+    csv_file = tmp_path / "detector_utf16.csv"
+    df = pd.DataFrame({
+        "DateTime": ["2024-01-01 00:00", "2024-01-01 01:00"],
+        "Temperature (degC)": [20.5, 21.0],
+        "RH (%)": [60.0, 61.0],
+    })
+    df.to_csv(csv_file, index=False, encoding="utf-16")
+
+    mapping = Detector().detect_from_csv(str(csv_file))
+
+    assert mapping["ts"]["col"] == "DateTime"
+    assert mapping["fields"]["temp_c"]["col"] == "Temperature (degC)"
+    assert mapping["fields"]["rh_pct"]["col"] == "RH (%)"
 
 
 def test_read_csv_with_special_characters_latin1(tmp_path):
