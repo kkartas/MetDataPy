@@ -1,2 +1,5 @@
 site/
 paper/
+dist/
+build/
+*.egg-info/
