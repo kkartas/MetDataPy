@@ -42,4 +42,6 @@ mdp ingest template [--out mapping.yml] [--minimal]
 ```bash
 mdp qc run --in raw.parquet --out clean.parquet [--report qc_report.json]
 ```
-- Applies plausible range checks and writes flag counts to report if requested.
+- Applies the full QC suite: range checks, spike detection (MAD), flatline detection, and cross-variable consistency checks.
+- Writes boolean `qc_*` flag columns into the output Parquet file.
+- If `--report` is given, writes a JSON summary of flag counts per check.

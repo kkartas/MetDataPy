@@ -19,8 +19,9 @@ ws.normalize_units(mapping)
 ```python
 ws.insert_missing(frequency=None)
 ```
-- Infers frequency (or use `frequency`) and reindexes.
-- Adds/updates `gap` where rows were inserted.
+- If `frequency` is omitted, infers the cadence from the index using the **mode** of inter-observation deltas. This tolerates gapped series — e.g. `00:00, 02:00, 03:00` correctly infers an hourly cadence and inserts the missing `01:00` row.
+- Only skips reindexing when no usable frequency can be derived.
+- Adds/updates a boolean `gap` column: `True` for rows that were inserted.
 
 ## Rain accumulation fix-up
 ```python
@@ -28,24 +29,29 @@ ws.fix_accum_rain()
 ```
 - Converts accumulated rain counters to event totals, handling rollovers and clamping negative noise to 0.
 
-## QC
+## Quality control
 ```python
-ws.qc_range()
+ws.qc_range()       # plausible range flags → qc_<var>_range
+ws.qc_spike()       # MAD-based spike flags → qc_<var>_spike
+ws.qc_flatline()    # stuck-sensor flags   → qc_<var>_flatline
+ws.qc_consistency() # cross-variable checks → qc_consistency + qc_any
 ```
-- Adds `qc_<var>_range` flags per plausible bounds.
+- All checks are non-destructive; they add boolean `qc_*` columns without modifying original data.
+- See [Quality Control](qc.md) for full details on each check.
 
 ## Derived metrics
 ```python
-ws.derive(["dew_point", "vpd"])
+ws.derive(["dew_point", "vpd", "heat_index", "wind_chill"])
 ```
-- Adds `dew_point_c`, `vpd_kpa` when `temp_c` and `rh_pct` are present.
+- Adds `dew_point_c`, `vpd_kpa`, `heat_index_c`, `wind_chill_c` when required source columns are present.
 
 ## Resample and aggregate
 ```python
-ws.resample("1H", agg={...})
+ws.resample("1h", agg={...})
 ```
 - Aggregates with sensible defaults (means for state variables, `sum` for `rain_mm`, `max` for `gust_ms`).
-- Propagates `gap` as `any` across the window.
+- `gap` is propagated as `True` if any row in the window was a gap.
+- All `qc_*` columns are propagated with **OR semantics** — the output flag is `True` if any row in the window was flagged. Raises `TypeError` for `qc_*` columns with unsupported dtypes.
 
 ## Calendar features
 ```python

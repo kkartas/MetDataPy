@@ -8,7 +8,7 @@ MetDataPy is a source-agnostic toolkit for ingesting, cleaning, QC-flagging, enr
 - Ingestion from CSV with mapping (explicit or autodetected)
 - Interactive mapping wizard and robust autodetection heuristics
 - Unit normalization and rain accumulation fix-up
-- Quality control: plausible range checks with flags
+- Quality control: range, spike (MAD), flatline, and cross-variable consistency checks with non-destructive flags
 - Derived metrics: dew point and VPD
 - WeatherSet operations: gap insertion, resampling/aggregation, calendar features, exogenous joins
 - CLI commands for ingestion, QC, and templates

@@ -37,7 +37,7 @@ mapping = Mapper.load("mapping.yml")
 df = pd.read_csv("path/to/file.csv")
 ws = WeatherSet.from_mapping(df, mapping).to_utc().normalize_units(mapping)
 ws = ws.insert_missing().fix_accum_rain().qc_range()
-ws = ws.derive(["dew_point", "vpd"]).resample("1H")
+ws = ws.derive(["dew_point", "vpd"]).resample("1h")
 ws = ws.calendar_features()
 clean = ws.to_dataframe()
 ```
