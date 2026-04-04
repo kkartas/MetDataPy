@@ -178,13 +178,16 @@ def qc_flatline(
     qc_range : Range-based quality control
     qc_spike : Detect sudden spikes
     """
+    min_obs = max(3, window // 2 + 1)
     target_cols = list(cols) if cols is not None else [c for c in df.columns if c in PLAUSIBLE_BOUNDS]
     for col in target_cols:
         if col not in df.columns:
             continue
         s = pd.to_numeric(df[col], errors="coerce")
-        var = s.rolling(window, center=True, min_periods=3).var()
-        df[f"qc_{col}_flatline"] = var.fillna(0.0) <= tol
+        var = s.rolling(window, center=True, min_periods=min_obs).var()
+        # Only flag when variance is genuinely at or below tolerance.
+        # NaN variance (insufficient valid observations) is NOT a flatline.
+        df[f"qc_{col}_flatline"] = var.le(tol) & var.notna()
     return df
 
 

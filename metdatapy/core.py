@@ -5,7 +5,7 @@ from typing import Dict, Optional
 import pandas as pd
 
 from .io import read_csv
-from .utils import CANONICAL_INDEX, CANONICAL_VARS, ensure_datetime_utc
+from .utils import CANONICAL_INDEX, CANONICAL_VARS, ensure_datetime_utc, infer_frequency
 from .units import (
     fahrenheit_to_c,
     identity,
@@ -82,14 +82,11 @@ class WeatherSet:
         return self
 
     def insert_missing(self, frequency: Optional[str] = None) -> "WeatherSet":
-        freq = frequency or pd.infer_freq(self.df.index)
+        from .utils import _normalize_freq_alias
+        freq = frequency if frequency is not None else infer_frequency(self.df.index)
+        freq = _normalize_freq_alias(freq)
         if freq is None:
             return self
-        # Normalize deprecated frequency aliases (H->h, T->min, etc.)
-        if freq == 'H':
-            freq = 'h'
-        elif freq and freq.endswith('H') and freq[:-1].isdigit():
-            freq = freq[:-1] + 'h'
         full = pd.date_range(self.df.index.min(), self.df.index.max(), freq=freq, tz="UTC")
         before = self.df.index
         self.df = self.df.reindex(full)
@@ -137,13 +134,16 @@ class WeatherSet:
         # Propagate gap as True if any gap in period
         if "gap" in self.df.columns:
             out["gap"] = grouped["gap"].max()
-        # Propagate qc_* flags as any over window
+        # Propagate qc_* flags with OR semantics over the resample window
         for col in self.df.columns:
             if isinstance(col, str) and col.startswith("qc_"):
-                try:
-                    out[col] = grouped[col].max()
-                except Exception:
-                    pass
+                series = self.df[col]
+                if not pd.api.types.is_bool_dtype(series) and not pd.api.types.is_numeric_dtype(series):
+                    raise TypeError(
+                        f"QC column '{col}' has unsupported dtype {series.dtype}; "
+                        "expected bool or numeric"
+                    )
+                out[col] = grouped[col].apply(lambda g: g.any())
         self.df = out
         self.df.index = self.df.index.tz_convert("UTC") if self.df.index.tz is not None else self.df.index.tz_localize("UTC")
         self.df.index.name = CANONICAL_INDEX

@@ -22,6 +22,36 @@ def test_qc_spike_and_flatline():
     assert out2["qc_temp_c_flatline"].iloc[1]
 
 
+## --- v1.0.2 regressions: Task 5 (flatline false positives) ---
+
+
+def test_qc_flatline_short_series_not_flagged():
+    """A short series (< window) should not be automatically flagged as flatline."""
+    df = pd.DataFrame({"temp_c": [20.0, 21.0, 22.0]})
+    out = qc_flatline(df.copy(), window=5, tol=0.0)
+    # With only 3 values and window=5, there aren't enough observations
+    assert not out["qc_temp_c_flatline"].any()
+
+
+def test_qc_flatline_nan_window_not_flagged():
+    """Windows dominated by NaN should not be flagged as flatline."""
+    import numpy as np
+    df = pd.DataFrame({
+        "temp_c": [np.nan, np.nan, 20.0, np.nan, np.nan, np.nan, np.nan]
+    })
+    out = qc_flatline(df.copy(), window=5, tol=0.0)
+    # Not enough valid observations in any window
+    assert not out["qc_temp_c_flatline"].any()
+
+
+def test_qc_flatline_true_constant_still_flags():
+    """A genuine flatline of constant values should still be flagged."""
+    df = pd.DataFrame({"temp_c": [20.0] * 10})
+    out = qc_flatline(df.copy(), window=5, tol=0.0)
+    # Centre of the series should be flagged
+    assert out["qc_temp_c_flatline"].any()
+
+
 def test_qc_consistency_and_any():
     df = pd.DataFrame({
         "temp_c": [20, 20],

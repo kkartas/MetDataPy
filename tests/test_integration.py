@@ -118,6 +118,32 @@ def test_mapper_template():
     assert isinstance(template['fields'], dict)
 
 
+## --- v1.0.2 regression: Task 4 end-to-end ---
+
+
+def test_insert_missing_infers_freq_end_to_end():
+    """End-to-end: ingest a gapped hourly series, insert missing, run QC."""
+    df = pd.DataFrame({
+        'temp_c': [18.0, 20.0, 21.0, 22.0],
+        'rh_pct': [60.0, 62.0, 63.0, 64.0],
+    }, index=pd.to_datetime(
+        ['2024-06-01 00:00', '2024-06-01 01:00',
+         '2024-06-01 03:00', '2024-06-01 04:00'],
+        utc=True,
+    ))
+    df.index.name = 'ts_utc'
+
+    ws = (WeatherSet(df)
+          .insert_missing()
+          .qc_range())
+
+    # Should have inserted 02:00
+    assert len(ws.df) == 5
+    assert 'gap' in ws.df.columns
+    assert ws.df['gap'].sum() == 1
+    assert pd.Timestamp('2024-06-01 02:00', tz='UTC') in ws.df.index
+
+
 def test_derive_workflow():
     """Test deriving meteorological metrics."""
     df = pd.DataFrame({

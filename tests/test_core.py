@@ -496,6 +496,104 @@ def test_derive_missing_required_columns():
     assert 'vpd_kpa' not in ws.df.columns
 
 
+## --- v1.0.2 regressions: Task 4 (insert_missing with gaps) ---
+
+
+def test_insert_missing_mostly_regular_with_gap():
+    """A mostly-regular hourly series with one missing row should infer hourly
+    cadence and insert the missing timestamp."""
+    df = pd.DataFrame({
+        'ts_utc': pd.to_datetime(
+            ['2024-01-01 00:00', '2024-01-01 02:00', '2024-01-01 03:00'],
+            utc=True,
+        ),
+        'temp_c': [20.0, 22.0, 23.0],
+    }).set_index('ts_utc')
+
+    ws = WeatherSet(df).insert_missing()  # no explicit frequency
+
+    assert len(ws.df) == 4
+    assert pd.Timestamp('2024-01-01 01:00', tz='UTC') in ws.df.index
+    assert ws.df['gap'].sum() == 1
+    assert ws.df.loc[pd.Timestamp('2024-01-01 01:00', tz='UTC'), 'gap'] == True
+
+
+def test_insert_missing_no_gap_regular_series():
+    """A fully regular series should remain unchanged."""
+    idx = pd.date_range('2024-01-01', periods=5, freq='h', tz='UTC')
+    df = pd.DataFrame({'temp_c': [20, 21, 22, 23, 24]}, index=idx)
+    df.index.name = 'ts_utc'
+
+    ws = WeatherSet(df).insert_missing()
+
+    assert len(ws.df) == 5
+    assert ws.df['gap'].sum() == 0
+
+
+def test_insert_missing_explicit_frequency():
+    """Explicit frequency= parameter should still work."""
+    df = pd.DataFrame({
+        'ts_utc': pd.to_datetime(
+            ['2024-01-01 00:00', '2024-01-01 02:00'],
+            utc=True,
+        ),
+        'temp_c': [20.0, 22.0],
+    }).set_index('ts_utc')
+
+    ws = WeatherSet(df).insert_missing(frequency='h')
+
+    assert len(ws.df) == 3
+    assert ws.df['gap'].sum() == 1
+
+
+## --- v1.0.2 regressions: Task 6 (resample QC propagation) ---
+
+
+def test_resample_multiple_qc_columns():
+    """Multiple qc_* columns should all propagate with OR semantics."""
+    df = pd.DataFrame({
+        'ts_utc': pd.date_range('2024-01-01', periods=6, freq='10min'),
+        'temp_c': [20.0] * 6,
+        'qc_temp_c_range': [False, False, True, False, False, False],
+        'qc_temp_c_spike': [False, False, False, False, True, False],
+    }).set_index('ts_utc')
+
+    ws = WeatherSet(df).resample('1h')
+
+    assert 'qc_temp_c_range' in ws.df.columns
+    assert 'qc_temp_c_spike' in ws.df.columns
+    # First hour (00:00-00:50) contains both flags
+    assert ws.df['qc_temp_c_range'].iloc[0] == True
+    assert ws.df['qc_temp_c_spike'].iloc[0] == True
+
+
+def test_resample_gap_propagation():
+    """Gap flag should propagate: True if any gap in the window."""
+    df = pd.DataFrame({
+        'ts_utc': pd.date_range('2024-01-01', periods=12, freq='10min'),
+        'temp_c': [20.0] * 12,
+        'gap': [False] * 5 + [True] + [False] * 6,
+    }).set_index('ts_utc')
+
+    ws = WeatherSet(df).resample('1h')
+
+    assert 'gap' in ws.df.columns
+    assert ws.df['gap'].iloc[0] == True  # 5th entry (index 5) is in the 1st hour
+    assert ws.df['gap'].iloc[1] == False
+
+
+def test_resample_qc_unsupported_dtype_raises():
+    """An unsupported qc_* column dtype should raise TypeError."""
+    df = pd.DataFrame({
+        'ts_utc': pd.date_range('2024-01-01', periods=6, freq='10min'),
+        'temp_c': [20.0] * 6,
+        'qc_bad': ['a', 'b', 'c', 'd', 'e', 'f'],
+    }).set_index('ts_utc')
+
+    with pytest.raises(TypeError, match="unsupported dtype"):
+        WeatherSet(df).resample('1h')
+
+
 def test_to_netcdf(tmp_path):
     """Test NetCDF export."""
     df = pd.DataFrame({

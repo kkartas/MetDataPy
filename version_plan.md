@@ -1,8 +1,11 @@
 # Version Plan
 
-Current version: `v1.0.1`
+Current released version: `v1.0.2`
 
-This document defines the implementation path from `v1.0.1` forward.
+Next planned version: `v1.1.0`
+
+This document defines the implementation path from `v1.0.2` forward.
+Completed `v1.0.1` work is retained below as release history.
 It is written to be used directly by Codex for one-task-at-a-time execution.
 
 ## Working Rules
@@ -16,7 +19,9 @@ It is written to be used directly by Codex for one-task-at-a-time execution.
 - Prefer backward-compatible changes within patch releases.
 - If a task changes file formats, CLI behavior, or public API semantics, document the migration in `README.md` and the relevant docs page.
 
-## v1.0.1: Ingestion Hardening
+## v1.0.1: Ingestion Hardening (Completed)
+
+Status: completed in the current codebase and covered by regression tests.
 
 ### Goal
 
@@ -485,7 +490,7 @@ Turn the corrected primitives into a declarative, reproducible end-to-end workfl
 
 ## Release Order
 
-1. Ship `v1.0.1` and `v1.0.2` before feature work.
+1. Ship `v1.0.2` before feature work.
 2. Ship `v1.1.0` next because timezone correctness affects every downstream artifact.
 3. Ship `v1.2.0` before model-facing feature work so derived metrics and resampling are physically correct.
 4. Ship `v1.3.0` and `v1.4.0` next as the most natural product extensions.
