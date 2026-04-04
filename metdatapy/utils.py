@@ -1,7 +1,6 @@
 import datetime as _dt
 from typing import Dict, Optional
 
-import numpy as np
 import pandas as pd
 
 CANONICAL_VARS = [
@@ -62,12 +61,29 @@ def _normalize_freq_alias(freq: Optional[str]) -> Optional[str]:
     return freq
 
 
+_SECOND_MAP = {
+    60: "min",
+    300: "5min",
+    600: "10min",
+    900: "15min",
+    1800: "30min",
+    3600: "h",
+    7200: "2h",
+    10800: "3h",
+    21600: "6h",
+    43200: "12h",
+    86400: "D",
+}
+
+
 def infer_frequency(index: pd.DatetimeIndex) -> Optional[str]:
     """Infer frequency from a DatetimeIndex, tolerating gaps.
 
     First tries ``pd.infer_freq`` (strict). If that fails, falls back to the
-    median inter-observation delta and maps it to the closest standard pandas
-    offset alias.
+    mode of inter-observation timedeltas and maps it to the closest standard
+    pandas offset alias. Uses ``TimedeltaIndex`` arithmetic rather than
+    ``view("int64")`` so the result is correct regardless of the index
+    resolution (ns, us, s) or pandas version.
     """
     try:
         freq = pd.infer_freq(index)
@@ -77,39 +93,24 @@ def infer_frequency(index: pd.DatetimeIndex) -> Optional[str]:
         pass
     if len(index) < 2:
         return None
-    deltas = np.diff(index.view("int64"))
+    # Compute timedeltas without assuming a specific internal resolution.
+    # index[1:] - index[:-1] always returns a TimedeltaIndex.
+    deltas = index[1:] - index[:-1]
     if len(deltas) == 0:
         return None
     # Use the mode (most common delta) — best for mostly-regular series with
-    # occasional gaps.  Fall back to the minimum delta when no clear mode.
-    unique, counts = np.unique(deltas, return_counts=True)
-    max_count = counts.max()
-    if max_count > 1:
-        best_ns = int(unique[counts.argmax()])
+    # occasional gaps.  Fall back to the minimum when all deltas are unique.
+    counts = pd.Series(deltas).value_counts()
+    if counts.iloc[0] > 1:
+        best_td = counts.index[0]
     else:
-        best_ns = int(unique.min())
-    td = pd.to_timedelta(best_ns, unit="ns")
-    # Map common timedeltas to standard offset aliases
-    total_seconds = td.total_seconds()
+        best_td = deltas.min()
+    total_seconds = best_td.total_seconds()
     if total_seconds <= 0:
         return None
-    _SECOND_MAP = {
-        60: "min",
-        300: "5min",
-        600: "10min",
-        900: "15min",
-        1800: "30min",
-        3600: "h",
-        7200: "2h",
-        10800: "3h",
-        21600: "6h",
-        43200: "12h",
-        86400: "D",
-    }
     rounded = round(total_seconds)
     if rounded in _SECOND_MAP:
         return _SECOND_MAP[rounded]
-    # For non-standard intervals, return a seconds-based offset
     return f"{rounded}s"
 
 def now_utc_iso() -> str:
