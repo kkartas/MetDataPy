@@ -154,7 +154,7 @@ from metdatapy.mapper import Mapper
 from metdatapy.core import WeatherSet
 from metdatapy.mlprep import make_supervised, time_split, fit_scaler, apply_scaler
 
-mapping = Mapper.load("mapping.yml")
+mapping = Mapper.load("mapping.yml")  # mapping.yml may carry ts.timezone (v1.1.0+)
 df = pd.read_csv("path/to/file.csv")
 ws = WeatherSet.from_mapping(df, mapping).to_utc().normalize_units(mapping)
 ws = ws.insert_missing().fix_accum_rain().qc_range().qc_spike().qc_flatline().qc_consistency()

@@ -8,6 +8,12 @@ WeatherSet.from_mapping(df, mapping)
 WeatherSet.from_csv(path, mapping)
 ```
 - Sets UTC datetime index and selects mapped fields.
+- Honors `ts.timezone` in the mapping (v1.1.0+). Naive source timestamps are localized to the
+  declared IANA zone and then converted to UTC; tz-aware timestamps are always converted to UTC
+  and the hint is ignored.
+- If the source timestamps are naive and no `ts.timezone` is declared, the values are assumed to
+  be UTC and a `UserWarning` is emitted. Set `ts.timezone` explicitly to silence it and to
+  guarantee the intended conversion.
 
 ## Unit normalization
 ```python

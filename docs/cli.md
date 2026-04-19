@@ -21,6 +21,9 @@ mdp ingest detect --csv weather_data.csv --save mapping.yml --yes
 
 The interactive wizard displays confidence scores and allows you to:
 - Confirm or change the detected source column for each field
+- Declare the timestamp's source timezone (e.g. `UTC`, `US/Eastern`, `Europe/Athens`). Leave
+  blank only if the source timestamps are already UTC — otherwise times will be interpreted
+  as UTC and shifted silently.
 - Specify units (C/F for temperature, m/s/mph for wind speed, etc.)
 - Type `none` to skip unmapped fields
 
@@ -35,6 +38,8 @@ mdp ingest apply --csv FILE.csv --map mapping.yml --out raw.parquet
 mdp ingest template [--out mapping.yml] [--minimal]
 ```
 - Prints or saves a mapping template. `--minimal` excludes optional fields.
+- The template includes a `ts.timezone` field; fill it in with an IANA timezone name
+  (e.g. `US/Eastern`) when your source timestamps are naive but not UTC.
 
 ## QC
 

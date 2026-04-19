@@ -76,7 +76,10 @@ The NetCDF export includes:
 **Time Dimension:**
 - Standard name: `time`
 - Axis: `T`
-- UTC-aware datetime encoding
+- Stored as naive UTC on disk (NetCDF/xarray do not carry tz info). Any tz-aware input is
+  first converted to UTC before the timezone is stripped, so the wall-clock instant is
+  preserved across the round-trip. `from_netcdf` re-localizes the time index to UTC so the
+  returned DataFrame is tz-aware.
 
 **Variable Attributes:**
 - `standard_name`: CF standard names (e.g., `air_temperature`, `wind_speed`)
@@ -132,6 +135,7 @@ ws = WeatherSet(df)
 
 **Automatic Conversions:**
 - `time` dimension → `ts_utc` index
+- Naive on-disk time → tz-aware `UTC` DatetimeIndex (v1.1.0+)
 - int8 QC flags → boolean
 - Coordinate variables (lat/lon/alt) dropped from time series
 

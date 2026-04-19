@@ -12,12 +12,13 @@ python -m pip install -e .
 ```bash
 mdp ingest detect --csv path/to/file.csv --save mapping.yml
 ```
-This launches an interactive wizard that lets you review and refine auto-detected column mappings. You can press Enter to accept defaults or type custom values.
+This launches an interactive wizard that lets you review and refine auto-detected column mappings. You can press Enter to accept defaults or type custom values. The wizard also prompts for the timestamp's source timezone — set this to the zone of your naive timestamps (e.g. `US/Eastern`) so they are converted to UTC correctly.
 
 **Option 2: Non-interactive** (auto-accept detected mappings)
 ```bash
 mdp ingest detect --csv path/to/file.csv --save mapping.yml --yes
 ```
+After saving, open `mapping.yml` and set `ts.timezone` manually if your source timestamps are naive but not UTC. See [Mapper & Detector](mapper.md) for the full schema.
 
 ## Apply mapping and run QC
 

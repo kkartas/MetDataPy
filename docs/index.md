@@ -5,7 +5,8 @@ MetDataPy is a source-agnostic toolkit for ingesting, cleaning, QC-flagging, enr
 ## What it provides today
 
 - Canonical schema with UTC timestamp index and metric units
-- Ingestion from CSV with mapping (explicit or autodetected)
+- Ingestion from CSV with mapping (explicit or autodetected), including optional `ts.timezone`
+  metadata so naive local timestamps convert to UTC correctly
 - Interactive mapping wizard and robust autodetection heuristics
 - Unit normalization and rain accumulation fix-up
 - Quality control: range, spike (MAD), flatline, and cross-variable consistency checks with non-destructive flags
