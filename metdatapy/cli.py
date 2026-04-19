@@ -49,6 +49,7 @@ def _interactive_mapping_wizard(mapping: dict, columns: List[str]) -> dict:
 
      # Timestamp column
      ts_current = (mapping.get("ts") or {}).get("col")
+     tz_current = (mapping.get("ts") or {}).get("timezone") or ""
      col_choices = [str(c) for c in columns]
      if ts_current is None:
          ts_current = col_choices[0] if col_choices else None
@@ -60,7 +61,15 @@ def _interactive_mapping_wizard(mapping: dict, columns: List[str]) -> dict:
      if ts_selected.lower() == "none" or ts_selected == "":
          mapping["ts"] = {"col": None}
      else:
-         mapping["ts"] = {"col": ts_selected}
+         tz_selected = click.prompt(
+             "Timestamp timezone (e.g. UTC, US/Eastern; blank = naive/UTC)",
+             default=tz_current,
+             show_default=True,
+         ).strip()
+         entry = {"col": ts_selected}
+         if tz_selected and tz_selected.lower() != "none":
+             entry["timezone"] = tz_selected
+         mapping["ts"] = entry
 
      # Ensure fields dict exists
      if "fields" not in mapping or mapping["fields"] is None:

@@ -64,7 +64,7 @@ class Mapper:
         ]
         return {
             "version": 1,
-            "ts": {"col": ""},
+            "ts": {"col": "", "timezone": ""},
             "fields": {v: {"col": "", "unit": ""} for v in fields},
         }
 

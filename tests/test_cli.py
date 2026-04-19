@@ -221,6 +221,7 @@ class TestIngestTemplate:
         content = yaml.safe_load(result.output)
         assert "ts" in content
         assert "fields" in content
+        assert "timezone" in content["ts"]
         
     def test_template_to_file(self, runner, tmp_path):
         """Test template save to file."""
@@ -546,19 +547,43 @@ class TestInteractiveMappingWizard:
         
     def test_wizard_set_to_none(self, runner, sample_csv):
         """Test wizard setting field to none."""
-        inputs = "timestamp\nnone\n" + "\n" * 20
+        # ts col, timezone (blank), then first canonical field = none
+        inputs = "timestamp\n\nnone\n" + "\n" * 20
         result = runner.invoke(main, [
             "ingest", "detect",
             "--csv", sample_csv,
         ], input=inputs)
         assert "Interactive mapping wizard" in result.output
-        
+
     def test_wizard_custom_values(self, runner, sample_csv):
         """Test wizard with custom column and unit values."""
-        inputs = "timestamp\ntemperature\nC\n" + "\n" * 20
+        # ts col, timezone (blank), first canonical source col, unit
+        inputs = "timestamp\n\ntemperature\nC\n" + "\n" * 20
         result = runner.invoke(main, [
             "ingest", "detect",
             "--csv", sample_csv,
         ], input=inputs)
         assert "Interactive mapping wizard" in result.output
+
+    def test_wizard_prompts_for_timezone(self, runner, sample_csv):
+        """Wizard must prompt for timezone after timestamp column."""
+        inputs = "timestamp\nUS/Eastern\n" + "\n" * 25
+        result = runner.invoke(main, [
+            "ingest", "detect",
+            "--csv", sample_csv,
+        ], input=inputs)
+        assert "Timestamp timezone" in result.output
+
+    def test_wizard_saves_timezone_into_mapping(self, runner, sample_csv, tmp_path):
+        """Wizard-entered timezone must persist into the saved mapping."""
+        save_path = tmp_path / "mapping.yml"
+        inputs = "timestamp\nUS/Eastern\n" + "\n" * 25
+        result = runner.invoke(main, [
+            "ingest", "detect",
+            "--csv", sample_csv,
+            "--save", str(save_path),
+        ], input=inputs)
+        assert save_path.exists()
+        mapping = yaml.safe_load(save_path.read_text())
+        assert mapping["ts"]["timezone"] == "US/Eastern"
 

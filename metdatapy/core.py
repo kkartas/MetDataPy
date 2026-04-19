@@ -38,10 +38,23 @@ class WeatherSet:
 
     @classmethod
     def from_mapping(cls, df: pd.DataFrame, mapping: Dict) -> "WeatherSet":
-        ts_col = mapping.get("ts", {}).get("col")
+        ts_cfg = mapping.get("ts") or {}
+        ts_col = ts_cfg.get("col")
         if ts_col is None or ts_col not in df.columns:
             raise ValueError("Timestamp column not found in mapping or data")
-        idx = ensure_datetime_utc(df[ts_col])
+        tz_hint = ts_cfg.get("timezone") or None
+        raw = pd.to_datetime(df[ts_col], errors="coerce", utc=False)
+        is_tz_aware = getattr(raw.dt, "tz", None) is not None
+        if not is_tz_aware and tz_hint is None:
+            import warnings
+            warnings.warn(
+                "Timestamp column is naive and no 'timezone' is set under 'ts' in "
+                "the mapping; assuming UTC. Add a 'timezone' key (e.g. 'UTC', "
+                "'US/Eastern') under 'ts' to declare the source timezone explicitly.",
+                UserWarning,
+                stacklevel=2,
+            )
+        idx = ensure_datetime_utc(df[ts_col], tz_hint=tz_hint)
         df = df.copy()
         df.index = idx
         df.index.name = CANONICAL_INDEX

@@ -5,6 +5,7 @@
 version: 1
 ts:
   col: DateTime
+  timezone: US/Eastern   # optional; IANA tz name for naive source timestamps
 fields:
   temp_c: { col: "Temperature (°C)", unit: C }
   rh_pct:  { col: "RH (%)" }
@@ -12,6 +13,10 @@ fields:
 ```
 
 - `ts.col` is required; fields map to source column names and optional `unit` hints.
+- `ts.timezone` (v1.1.0+) is optional. When set, naive source timestamps are first localized
+  to that timezone and then converted to UTC. Tz-aware source timestamps are always converted
+  to UTC and the hint is ignored. If the source timestamps are naive and no `timezone` is
+  set, the value is assumed to already be UTC and a `UserWarning` is emitted.
 
 ## Autodetection heuristics
 - Timestamp scored by name hints, parse success rate, and monotonicity.
@@ -46,6 +51,7 @@ The wizard will:
 ```
 Interactive mapping wizard (press Enter to accept defaults). Type 'none' to unset.
 Timestamp column [DateTime]: ⏎
+Timestamp timezone (e.g. UTC, US/Eastern; blank = naive/UTC) []: US/Eastern
 temp_c: (confidence=0.85)
   Source column for temp_c [Temperature]: ⏎
   Unit for temp_c (e.g., C, F, m/s, km/h, hpa, mm) [C]: ⏎

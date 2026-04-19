@@ -594,6 +594,88 @@ def test_resample_qc_unsupported_dtype_raises():
         WeatherSet(df).resample('1h')
 
 
+## --- v1.1.0 regressions: Task 7 (timezone metadata in mappings) ---
+
+
+def test_from_mapping_uses_timezone_field():
+    """Naive timestamps + mapping timezone must be localized then converted to UTC."""
+    df = pd.DataFrame({
+        'timestamp': ['2024-01-01 00:00', '2024-01-01 01:00'],
+        'temperature': [20.0, 21.0],
+    })
+    mapping = {
+        'ts': {'col': 'timestamp', 'timezone': 'US/Eastern'},
+        'fields': {'temp_c': {'col': 'temperature', 'unit': 'C'}},
+    }
+
+    ws = WeatherSet.from_mapping(df, mapping)
+
+    # 00:00 US/Eastern (EST, UTC-5) -> 05:00 UTC
+    assert ws.df.index[0] == pd.Timestamp('2024-01-01 05:00', tz='UTC')
+    assert ws.df.index[1] == pd.Timestamp('2024-01-01 06:00', tz='UTC')
+
+
+def test_from_mapping_naive_without_timezone_warns():
+    """Naive timestamps with no mapping timezone must emit a UserWarning."""
+    import warnings
+    df = pd.DataFrame({
+        'timestamp': ['2024-01-01 00:00', '2024-01-01 01:00'],
+        'temperature': [20.0, 21.0],
+    })
+    mapping = {
+        'ts': {'col': 'timestamp'},
+        'fields': {'temp_c': {'col': 'temperature', 'unit': 'C'}},
+    }
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        WeatherSet.from_mapping(df, mapping)
+
+    msgs = [str(w.message) for w in caught if issubclass(w.category, UserWarning)]
+    assert any("timezone" in m.lower() for m in msgs)
+
+
+def test_from_mapping_tz_aware_timestamps_no_warning():
+    """Tz-aware timestamps should not warn even without mapping timezone."""
+    import warnings
+    df = pd.DataFrame({
+        'timestamp': pd.date_range('2024-01-01', periods=3, freq='h', tz='UTC'),
+        'temperature': [20.0, 21.0, 22.0],
+    })
+    mapping = {
+        'ts': {'col': 'timestamp'},
+        'fields': {'temp_c': {'col': 'temperature', 'unit': 'C'}},
+    }
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        WeatherSet.from_mapping(df, mapping)
+
+    msgs = [str(w.message) for w in caught if issubclass(w.category, UserWarning)]
+    assert not any("timezone" in m.lower() for m in msgs)
+
+
+def test_from_mapping_empty_timezone_string_treated_as_missing():
+    """Empty-string timezone must behave like omitted timezone (warn + UTC)."""
+    import warnings
+    df = pd.DataFrame({
+        'timestamp': ['2024-01-01 00:00', '2024-01-01 01:00'],
+        'temperature': [20.0, 21.0],
+    })
+    mapping = {
+        'ts': {'col': 'timestamp', 'timezone': ''},
+        'fields': {'temp_c': {'col': 'temperature', 'unit': 'C'}},
+    }
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        ws = WeatherSet.from_mapping(df, mapping)
+
+    assert str(ws.df.index.tz) == 'UTC'
+    msgs = [str(w.message) for w in caught if issubclass(w.category, UserWarning)]
+    assert any("timezone" in m.lower() for m in msgs)
+
+
 def test_to_netcdf(tmp_path):
     """Test NetCDF export."""
     df = pd.DataFrame({

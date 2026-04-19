@@ -116,12 +116,31 @@ def test_ensure_datetime_utc_with_tz_hint():
     from metdatapy.utils import ensure_datetime_utc
     sr = pd.Series(pd.date_range('2024-01-01', periods=5, freq='1h'))
     result = ensure_datetime_utc(sr, tz_hint='US/Eastern')
-    
+
     # ensure_datetime_utc returns DatetimeIndex, not Series
     assert isinstance(result, pd.DatetimeIndex)
     assert result.tz is not None
     assert str(result.tz) == 'UTC'
     # Should have been localized to US/Eastern then converted to UTC
+
+
+def test_ensure_datetime_utc_tz_hint_preserves_instant():
+    """A naive local time + tz_hint must round-trip to the correct UTC instant."""
+    from metdatapy.utils import ensure_datetime_utc
+    sr = pd.Series(['2024-01-01 00:00'])
+    result = ensure_datetime_utc(sr, tz_hint='US/Eastern')
+    # 2024-01-01 00:00 EST (UTC-5) -> 2024-01-01 05:00 UTC
+    assert result[0] == pd.Timestamp('2024-01-01 05:00', tz='UTC')
+
+
+def test_ensure_datetime_utc_tz_hint_ignored_when_already_aware():
+    """A tz-aware series must be converted to UTC, ignoring the tz_hint."""
+    from metdatapy.utils import ensure_datetime_utc
+    sr = pd.Series([pd.Timestamp('2024-01-01 12:00:00', tz='US/Eastern')])
+    # tz_hint should not re-localize an already-aware series
+    result = ensure_datetime_utc(sr, tz_hint='UTC')
+    # 12:00 EST -> 17:00 UTC (not 12:00 UTC)
+    assert result[0] == pd.Timestamp('2024-01-01 17:00', tz='UTC')
 
 
 def test_infer_frequency_valid():
