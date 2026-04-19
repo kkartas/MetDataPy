@@ -3,3 +3,17 @@ paper/
 dist/
 build/
 *.egg-info/
+planning.md
+pycache/
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+*.dylib
+*.egg
+*.log
+*.bak
+*.tmp
+*.swp
+*.swo
