@@ -268,10 +268,12 @@ def to_netcdf(
     
     # Convert DataFrame to xarray Dataset
     # Note: xarray/numpy compatibility issue with tz-aware datetimes
-    # Convert to tz-naive UTC before creating Dataset
+    # For non-UTC tz-aware input we must first convert to UTC and only then
+    # strip the tz info, otherwise tz_localize(None) preserves the local
+    # wall-clock time and silently shifts the instant.
     df_for_xr = df.copy()
     if df_for_xr.index.tz is not None:
-        df_for_xr.index = df_for_xr.index.tz_localize(None)
+        df_for_xr.index = df_for_xr.index.tz_convert("UTC").tz_localize(None)
     
     ds = xr.Dataset.from_dataframe(df_for_xr)
     
@@ -406,13 +408,18 @@ def from_netcdf(path: str) -> pd.DataFrame:
         ) from e
     
     ds = xr.open_dataset(path)
-    
+
     # Convert to DataFrame
     df = ds.to_dataframe()
-    
+
     # Rename time dimension back to ts_utc if needed
     if "time" in df.index.names:
         df.index.names = ["ts_utc" if name == "time" else name for name in df.index.names]
+
+    # NetCDF stores time as naive UTC (by convention in this library). Restore
+    # UTC tz info so round-tripped data stays tz-aware and comparisons are safe.
+    if isinstance(df.index, pd.DatetimeIndex) and df.index.tz is None:
+        df.index = df.index.tz_localize("UTC")
     
     # Drop coordinate variables that are not time-series data
     coords_to_drop = ["latitude", "longitude", "altitude"]

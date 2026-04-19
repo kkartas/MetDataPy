@@ -180,6 +180,58 @@ def test_netcdf_roundtrip():
         Path(tmp_path).unlink(missing_ok=True)
 
 
+def test_netcdf_roundtrip_preserves_non_utc_tz_instants():
+    """Task 8: a non-UTC tz-aware input must round-trip without shifting instants."""
+    idx_local = pd.DatetimeIndex(
+        ["2025-01-01 00:00", "2025-01-01 01:00", "2025-01-01 02:00"],
+        tz="US/Eastern",
+    )
+    df = pd.DataFrame({"temp_c": [10.0, 11.0, 12.0]}, index=idx_local)
+    df.index.name = "ts_utc"
+
+    with tempfile.NamedTemporaryFile(suffix=".nc", delete=False) as tmp:
+        tmp_path = tmp.name
+
+    try:
+        to_netcdf(df, tmp_path)
+        df_imported = from_netcdf(tmp_path)
+
+        # Index must be tz-aware UTC after round-trip.
+        assert df_imported.index.tz is not None
+        assert str(df_imported.index.tz) == "UTC"
+
+        # Instants must match the original data converted to UTC, not the
+        # local wall-clock values.
+        expected_utc = idx_local.tz_convert("UTC")
+        assert list(df_imported.index) == list(expected_utc)
+        # Sanity check: 00:00 US/Eastern (UTC-5) -> 05:00 UTC
+        assert df_imported.index[0] == pd.Timestamp("2025-01-01 05:00", tz="UTC")
+    finally:
+        Path(tmp_path).unlink(missing_ok=True)
+
+
+def test_netcdf_roundtrip_utc_input_still_works():
+    """Existing UTC input must still round-trip correctly (no regression)."""
+    idx_utc = pd.DatetimeIndex(
+        ["2025-01-01 00:00", "2025-01-01 01:00"],
+        tz="UTC",
+    )
+    df = pd.DataFrame({"temp_c": [10.0, 11.0]}, index=idx_utc)
+    df.index.name = "ts_utc"
+
+    with tempfile.NamedTemporaryFile(suffix=".nc", delete=False) as tmp:
+        tmp_path = tmp.name
+
+    try:
+        to_netcdf(df, tmp_path)
+        df_imported = from_netcdf(tmp_path)
+
+        assert str(df_imported.index.tz) == "UTC"
+        assert list(df_imported.index) == list(idx_utc)
+    finally:
+        Path(tmp_path).unlink(missing_ok=True)
+
+
 def test_weatherset_to_netcdf():
     """Test WeatherSet.to_netcdf() method."""
     df = pd.DataFrame({
