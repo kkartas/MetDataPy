@@ -15,6 +15,7 @@ Flags values outside climatologically plausible bounds.
 | `wdir_deg` | 0° | 360° |
 | `gust_ms` | 0 m/s | 100 m/s |
 | `rain_mm` | 0 mm | 1000 mm |
+| `rain_rate_mmh` | 0 mm/h | 500 mm/h |
 | `solar_wm2` | 0 W/m² | 1500 W/m² |
 | `uv_index` | 0 | 20 |
 

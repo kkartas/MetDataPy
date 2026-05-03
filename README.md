@@ -118,9 +118,10 @@ mkdocs serve
 Features
 - Canonical schema with UTC index and metric units
 - Ingestion from CSV with mapping autodetection and interactive mapping wizard
-- **Automatic encoding detection** for CSV files (UTF-8, UTF-16, Latin-1, CP1252, ISO-8859-1)
+- **Automatic encoding and delimiter detection** for CSV files, including semicolon-delimited Weathercloud exports
+- Weathercloud directory ingestion via `read_weathercloud_directory(...)`
 - Unit normalization, rain accumulation fix-up, gap insertion with `gap` flag
-- WeatherSet resampling/aggregation, calendar features, exogenous joins
+- WeatherSet resampling/aggregation, wind-direction cyclic encoding, rolling features, calendar features, exogenous joins
 - Derived: dew point, VPD, heat index, wind chill
 - ML prep: supervised table builder (lags, horizons), time-safe split, scaling (Standard/MinMax/Robust)
 - Export: Parquet and CF-compliant NetCDF with metadata
@@ -150,15 +151,18 @@ flatline:
 Python API example
 ```python
 import pandas as pd
+from metdatapy import read_weathercloud_directory
 from metdatapy.mapper import Mapper
 from metdatapy.core import WeatherSet
 from metdatapy.mlprep import make_supervised, time_split, fit_scaler, apply_scaler
 
 mapping = Mapper.load("mapping.yml")  # mapping.yml may carry ts.timezone (v1.1.0+)
-df = pd.read_csv("path/to/file.csv")
-ws = WeatherSet.from_mapping(df, mapping).to_utc().normalize_units(mapping)
+df = read_weathercloud_directory("path/to/weathercloud_exports", mapping)
+ws = WeatherSet(df).to_utc()
 ws = ws.insert_missing().fix_accum_rain().qc_range().qc_spike().qc_flatline().qc_consistency()
-ws = ws.derive(["dew_point", "vpd", "heat_index", "wind_chill"]).resample("1H").calendar_features()
+ws = ws.derive(["dew_point", "vpd", "heat_index", "wind_chill"]).resample("1H")
+ws = ws.encode_wind_direction().rolling_features(["temp_c", "rh_pct", "wdir_sin", "wdir_cos"], [3, 6])
+ws = ws.calendar_features()
 clean = ws.to_dataframe()
 
 # Export to CF-compliant NetCDF
@@ -233,7 +237,7 @@ If you use MetDataPy in your research, please cite it:
   author = {Kyriakos Kartas},
   year = {2025},
   url = {https://github.com/kkartas/MetDataPy},
-  version = {1.1.0}
+  version = {1.2.0}
 }
 ```
 

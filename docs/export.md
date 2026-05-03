@@ -114,6 +114,7 @@ All canonical MetDataPy variables are mapped to CF standard names:
 | `wdir_deg` | `wind_from_direction` | degree |
 | `gust_ms` | `wind_speed_of_gust` | m s-1 |
 | `rain_mm` | `precipitation_amount` | mm |
+| `rain_rate_mmh` | `rainfall_rate` | mm h-1 |
 | `solar_wm2` | `surface_downwelling_shortwave_flux_in_air` | W m-2 |
 | `uv_index` | (no CF standard name) | 1 |
 | `dew_point_c` | `dew_point_temperature` | degree_Celsius |

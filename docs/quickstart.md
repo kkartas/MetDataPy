@@ -27,6 +27,15 @@ mdp ingest apply --csv path/to/file.csv --map mapping.yml --out raw.parquet
 mdp qc run --in raw.parquet --out clean.parquet --report qc_report.json
 ```
 
+CSV ingestion detects common delimiters, including semicolon-delimited Weathercloud exports. For
+multiple Weathercloud files, use the Python helper:
+
+```python
+from metdatapy import read_weathercloud_directory
+
+df = read_weathercloud_directory("path/to/weathercloud_exports", "mapping.yml")
+```
+
 ## Python API
 
 ```python
@@ -39,6 +48,7 @@ df = pd.read_csv("path/to/file.csv")
 ws = WeatherSet.from_mapping(df, mapping).to_utc().normalize_units(mapping)
 ws = ws.insert_missing().fix_accum_rain().qc_range()
 ws = ws.derive(["dew_point", "vpd"]).resample("1h")
+ws = ws.encode_wind_direction().rolling_features(["temp_c", "wdir_sin", "wdir_cos"], [3, 6])
 ws = ws.calendar_features()
 clean = ws.to_dataframe()
 ```

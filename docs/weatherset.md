@@ -19,7 +19,7 @@ WeatherSet.from_csv(path, mapping)
 ```python
 ws.normalize_units(mapping)
 ```
-- Converts known fields to canonical units (`F→C`, `mph/km/h→m/s`, `mbar/Pa→hPa`, `inch→mm`).
+- Converts known fields to canonical units (`F→C`, `mph/km/h→m/s`, `mbar/Pa→hPa`, `inch→mm`, `inch/h→mm/h`).
 
 ## Missing rows and gaps
 ```python
@@ -55,9 +55,23 @@ ws.derive(["dew_point", "vpd", "heat_index", "wind_chill"])
 ```python
 ws.resample("1h", agg={...})
 ```
-- Aggregates with sensible defaults (means for state variables, `sum` for `rain_mm`, `max` for `gust_ms`).
+- Aggregates with sensible defaults (means for state variables and `rain_rate_mmh`, `sum` for `rain_mm`, `max` for `gust_ms`).
 - `gap` is propagated as `True` if any row in the window was a gap.
 - All `qc_*` columns are propagated with **OR semantics** — the output flag is `True` if any row in the window was flagged. Raises `TypeError` for `qc_*` columns with unsupported dtypes.
+
+## Wind-direction encoding
+```python
+ws.encode_wind_direction(drop_original=False)
+```
+- Adds `wdir_sin` and `wdir_cos` from `wdir_deg`.
+- Keeps `wdir_deg` by default for auditability; pass `drop_original=True` to remove it.
+
+## Rolling features
+```python
+ws.rolling_features(["temp_c", "wdir_sin", "wdir_cos"], [3, 6])
+```
+- Adds columns named like `temp_c_roll3_mean`, `temp_c_roll3_std`, `temp_c_roll3_min`, and `temp_c_roll3_max`.
+- Uses `closed="left"` by default, so each row is computed from previous observations only.
 
 ## Calendar features
 ```python
