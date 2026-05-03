@@ -26,6 +26,10 @@ def pa_to_hpa(value):
     return value / 100.0
 
 
+def inches_to_mm(value):
+    return value * 25.4
+
+
 def parse_unit_hint(text: str) -> Optional[str]:
     t = (text or "").lower()
     if re.search(r"\b(°f|degf|f)\b", t):
@@ -44,6 +48,10 @@ def parse_unit_hint(text: str) -> Optional[str]:
         return "km/h"
     if re.search(r"\b(mph)\b", t):
         return "mph"
+    if re.search(r"\b(mm\s*/\s*h|mm\s*h-?1|mmh|mm/hr|mm/hour)\b", t):
+        return "mm/h"
+    if re.search(r"\b(in\s*/\s*h|inch\s*/\s*h|in/hr|inch/hr|in/hour|inch/hour)\b", t):
+        return "inch/h"
     if re.search(r"\b(mm)\b", t):
         return "mm"
     if re.search(r"\b(in|inch|inches)\b", t):

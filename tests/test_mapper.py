@@ -45,3 +45,18 @@ def test_detector_assigns_each_source_column_once():
 
     assert len(mapped_columns) == len(set(mapped_columns))
     assert sum(field in mapping["fields"] for field in ("wspd_ms", "gust_ms")) == 1
+
+
+def test_detector_maps_rain_rate_separately_from_rain_total():
+    df = pd.DataFrame({
+        "DateTime": ["2025-01-01 00:00", "2025-01-01 01:00", "2025-01-01 02:00"],
+        "Rain Rate (mm/h)": [0.0, 2.5, 0.0],
+        "Rainfall (mm)": [0.0, 1.0, 0.0],
+    })
+
+    mapping = Detector().detect(df)
+    fields = mapping["fields"]
+
+    assert fields["rain_rate_mmh"]["col"] == "Rain Rate (mm/h)"
+    assert fields["rain_rate_mmh"]["unit"] == "mm/h"
+    assert fields["rain_mm"]["col"] == "Rainfall (mm)"

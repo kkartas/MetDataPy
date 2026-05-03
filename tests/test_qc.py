@@ -12,6 +12,14 @@ def test_qc_range_flags_out_of_bounds():
     assert out["qc_rh_pct_range"].tolist() == [False, True, True]
 
 
+def test_qc_range_includes_rain_rate():
+    df = pd.DataFrame({"rain_rate_mmh": [10.0, 600.0]})
+
+    out = qc_range(df.copy())
+
+    assert out["qc_rain_rate_mmh_range"].tolist() == [False, True]
+
+
 def test_qc_spike_and_flatline():
     df = pd.DataFrame({
         "temp_c": [10, 10, 10, 50, 10, 10, 10],

@@ -15,6 +15,7 @@ from .units import (
     kmh_to_ms,
     mbar_to_hpa,
     pa_to_hpa,
+    inches_to_mm,
     identity,
 )
 from .utils import PLAUSIBLE_BOUNDS
@@ -28,6 +29,7 @@ CANONICAL_FIELDS = [
     "wdir_deg",
     "gust_ms",
     "rain_mm",
+    "rain_rate_mmh",
     "solar_wm2",
     "uv_index",
 ]
@@ -89,6 +91,7 @@ class Detector:
         ("wspd_ms", [r"wind[_\s-]*speed", r"wspd", r"wind[_\s-]*sp"]),
         ("wdir_deg", [r"wind[_\s-]*dir", r"wdir", r"dir"]),
         ("gust_ms", [r"gust", r"wind[_\s-]*gust"]),
+        ("rain_rate_mmh", [r"rain[_\s-]*rate", r"rain.*mm/?h", r"precip.*rate"]),
         ("rain_mm", [r"rain", r"precip", r"rainfall", r"rr"]),
         ("solar_wm2", [r"solar", r"irradiance", r"radiation", r"w/?m2"]),
         ("uv_index", [r"uv"]) ,
@@ -121,6 +124,8 @@ class Detector:
                 if c == ts_col:
                     continue
                 lc = lower_map[c]
+                if canonical == "rain_mm" and re.search(r"(rate|intensity|mm\s*/\s*h)", lc):
+                    continue
                 name_score = 0.0
                 if any(re.search(p, lc) for p in patterns):
                     name_score = 0.4
@@ -214,7 +219,12 @@ class Detector:
         if canonical == "rain_mm":
             return ["mm", "inch"], {
                 "mm": identity,
-                "inch": lambda x: x * 25.4,
+                "inch": inches_to_mm,
+            }
+        if canonical == "rain_rate_mmh":
+            return ["mm/h", "inch/h"], {
+                "mm/h": identity,
+                "inch/h": inches_to_mm,
             }
         return [None], {None: identity}
 

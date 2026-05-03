@@ -1,3 +1,4 @@
+import csv
 from typing import Optional, Dict, Any
 import pandas as pd
 import numpy as np
@@ -35,23 +36,55 @@ def _read_csv_with_detected_encoding(
     path: str,
     *,
     nrows: Optional[int] = None,
+    delimiter: Optional[str] = None,
 ) -> pd.DataFrame:
     """Read CSV using the first compatible encoding from the supported list."""
     encoding = _detect_encoding(path)
+    delimiter = _detect_delimiter(path, encoding=encoding) if delimiter is None else delimiter
     read_kwargs: Dict[str, Any] = {
         "encoding": encoding,
         "encoding_errors": "replace",
+        "sep": delimiter,
     }
     if nrows is not None:
         read_kwargs["nrows"] = nrows
     return pd.read_csv(path, **read_kwargs)
 
 
-def read_csv(path: str, ts_col: Optional[str] = None, nrows: Optional[int] = None) -> pd.DataFrame:
+def _detect_delimiter(path: str, encoding: Optional[str] = None) -> str:
+    """Detect a likely CSV delimiter from the first few rows."""
+    encoding = encoding or _detect_encoding(path)
+    with open(path, "r", encoding=encoding, errors="replace", newline="") as f:
+        sample = f.read(8192)
+
+    if not sample:
+        return ","
+
+    try:
+        dialect = csv.Sniffer().sniff(sample, delimiters=",;\t|")
+        return dialect.delimiter
+    except csv.Error:
+        lines = [line for line in sample.splitlines() if line.strip()]
+        if not lines:
+            return ","
+        counts = {
+            candidate: sum(line.count(candidate) for line in lines[:10])
+            for candidate in [",", ";", "\t", "|"]
+        }
+        return max(counts, key=counts.get) if max(counts.values()) > 0 else ","
+
+
+def read_csv(
+    path: str,
+    ts_col: Optional[str] = None,
+    nrows: Optional[int] = None,
+    delimiter: Optional[str] = None,
+) -> pd.DataFrame:
     """
     Read CSV file into a DataFrame with optional timestamp parsing.
     
-    Automatically detects file encoding (UTF-8, UTF-16, Latin-1, CP1252, ISO-8859-1).
+    Automatically detects file encoding (UTF-8, UTF-16, Latin-1, CP1252, ISO-8859-1)
+    and common delimiters (comma, semicolon, tab, pipe) unless ``delimiter`` is provided.
     
     Parameters
     ----------
@@ -62,6 +95,8 @@ def read_csv(path: str, ts_col: Optional[str] = None, nrows: Optional[int] = Non
         this column to pandas datetime format
     nrows : int, optional
         Number of rows to read. If omitted, reads the full file.
+    delimiter : str, optional
+        Field delimiter. If omitted, a delimiter is detected from the file sample.
     
     Returns
     -------
@@ -78,7 +113,7 @@ def read_csv(path: str, ts_col: Optional[str] = None, nrows: Optional[int] = Non
     read_parquet : Read Parquet files
     WeatherSet.from_csv : Higher-level CSV loading with mapping
     """
-    df = _read_csv_with_detected_encoding(path, nrows=nrows)
+    df = _read_csv_with_detected_encoding(path, nrows=nrows, delimiter=delimiter)
     if ts_col and ts_col in df.columns:
         df[ts_col] = pd.to_datetime(df[ts_col], errors="coerce")
     return df
@@ -230,6 +265,13 @@ def to_netcdf(
             "standard_name": "precipitation_amount",
             "long_name": "Rainfall",
             "units": "mm",
+            "valid_min": 0.0,
+            "valid_max": 500.0,
+        },
+        "rain_rate_mmh": {
+            "standard_name": "rainfall_rate",
+            "long_name": "Rainfall Rate",
+            "units": "mm h-1",
             "valid_min": 0.0,
             "valid_max": 500.0,
         },

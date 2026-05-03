@@ -72,6 +72,32 @@ def test_read_csv_with_utf16(tmp_path):
     assert "temp_c" in result.columns
 
 
+def test_read_csv_detects_semicolon_delimiter(tmp_path):
+    """Test semicolon-delimited CSV detection."""
+    csv_file = tmp_path / "weather_semicolon.csv"
+    csv_file.write_text(
+        "DateTime;temp_c;rh_pct\n"
+        "2024-01-01 00:00;20.5;60\n"
+        "2024-01-01 01:00;21.0;61\n",
+        encoding="utf-8",
+    )
+
+    result = read_csv(str(csv_file), ts_col="DateTime")
+
+    assert list(result.columns) == ["DateTime", "temp_c", "rh_pct"]
+    assert len(result) == 2
+
+
+def test_read_csv_honors_explicit_delimiter(tmp_path):
+    """Test explicit delimiter configuration."""
+    csv_file = tmp_path / "weather_pipe.csv"
+    csv_file.write_text("DateTime|temp_c\n2024-01-01 00:00|20.5\n", encoding="utf-8")
+
+    result = read_csv(str(csv_file), delimiter="|")
+
+    assert list(result.columns) == ["DateTime", "temp_c"]
+
+
 def test_detector_detect_from_csv_with_utf16(tmp_path):
     """Test detector CSV loading path with UTF-16 input."""
     csv_file = tmp_path / "detector_utf16.csv"

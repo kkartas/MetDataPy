@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Dict, Iterable, Optional, Sequence
 
+import numpy as np
 import pandas as pd
 
 from .io import read_csv
@@ -13,6 +14,7 @@ from .units import (
     kmh_to_ms,
     mbar_to_hpa,
     pa_to_hpa,
+    inches_to_mm,
 )
 from .qc import qc_range
 from .derive import dew_point_c, vpd_kpa
@@ -23,7 +25,8 @@ UNIT_CONVERTERS = {
     "wspd_ms": {"mph": mph_to_ms, "km/h": kmh_to_ms, "m/s": identity},
     "gust_ms": {"mph": mph_to_ms, "km/h": kmh_to_ms, "m/s": identity},
     "pres_hpa": {"mbar": mbar_to_hpa, "hpa": identity, "pa": pa_to_hpa},
-    "rain_mm": {"mm": identity, "inch": lambda x: x * 25.4},
+    "rain_mm": {"mm": identity, "inch": inches_to_mm},
+    "rain_rate_mmh": {"mm/h": identity, "inch/h": inches_to_mm},
 }
 
 
@@ -134,6 +137,7 @@ class WeatherSet:
             "wdir_deg": "mean",
             "gust_ms": "max",
             "rain_mm": "sum",
+            "rain_rate_mmh": "mean",
             "solar_wm2": "mean",
             "uv_index": "max",
         }
@@ -174,6 +178,52 @@ class WeatherSet:
             self.df["doy"] = idx.dayofyear
             self.df["doy_sin"] = np.sin(2 * np.pi * self.df["doy"] / 365.25)
             self.df["doy_cos"] = np.cos(2 * np.pi * self.df["doy"] / 365.25)
+        return self
+
+    def encode_wind_direction(self, drop_original: bool = False) -> "WeatherSet":
+        """Encode wind direction degrees as cyclic sine/cosine features."""
+        if "wdir_deg" not in self.df.columns:
+            return self
+        direction = pd.to_numeric(self.df["wdir_deg"], errors="coerce") % 360.0
+        radians = np.deg2rad(direction)
+        self.df["wdir_sin"] = np.sin(radians)
+        self.df["wdir_cos"] = np.cos(radians)
+        if drop_original:
+            self.df = self.df.drop(columns=["wdir_deg"])
+        return self
+
+    def rolling_features(
+        self,
+        columns: Iterable[str],
+        windows: Iterable[int],
+        stats: Sequence[str] = ("mean", "std", "min", "max"),
+        closed: str = "left",
+    ) -> "WeatherSet":
+        """Add rolling time-series features for selected columns.
+
+        The default ``closed="left"`` computes each feature from previous rows
+        only, excluding the current observation to avoid target leakage.
+        """
+        allowed_stats = {"mean", "std", "min", "max"}
+        requested_stats = tuple(stats)
+        unsupported = [stat for stat in requested_stats if stat not in allowed_stats]
+        if unsupported:
+            raise ValueError(f"Unsupported rolling stats: {unsupported}")
+
+        for window in windows:
+            if not isinstance(window, int) or window < 1:
+                raise ValueError("Rolling windows must be positive integers")
+            for column in columns:
+                if column not in self.df.columns:
+                    continue
+                series = pd.to_numeric(self.df[column], errors="coerce")
+                if closed == "left":
+                    rolling = series.shift(1).rolling(window=window, min_periods=1)
+                else:
+                    rolling = series.rolling(window=window, min_periods=1, closed=closed)
+                for stat in requested_stats:
+                    out_col = f"{column}_roll{window}_{stat}"
+                    self.df[out_col] = getattr(rolling, stat)()
         return self
 
     def add_exogenous(self, exo: pd.DataFrame, how: str = "left") -> "WeatherSet":
@@ -230,4 +280,3 @@ class WeatherSet:
             from .derive import wind_chill_c
             self.df["wind_chill_c"] = wind_chill_c(self.df["temp_c"], self.df["wspd_ms"]).astype(float)
         return self
-

@@ -1,6 +1,7 @@
 """Comprehensive tests for core.py (WeatherSet)."""
 
 import pandas as pd
+import numpy as np
 import pytest
 from metdatapy.core import WeatherSet
 
@@ -320,6 +321,25 @@ def test_normalize_units_pressure():
     assert abs(ws.df['pres_hpa'].iloc[0] - 1013.0) < 1.0
 
 
+def test_from_mapping_and_units_rain_rate():
+    """Rain rate is a canonical variable and normalizes to mm/h."""
+    df = pd.DataFrame({
+        'timestamp': pd.date_range('2024-01-01', periods=2, freq='h'),
+        'rain_rate_inh': [0.1, 0.0],
+    })
+    mapping = {
+        'ts': {'col': 'timestamp'},
+        'fields': {
+            'rain_rate_mmh': {'col': 'rain_rate_inh', 'unit': 'inch/h'},
+        },
+    }
+
+    ws = WeatherSet.from_mapping(df, mapping).normalize_units(mapping)
+
+    assert 'rain_rate_mmh' in ws.df.columns
+    assert abs(ws.df['rain_rate_mmh'].iloc[0] - 2.54) < 1e-6
+
+
 def test_to_utc_naive_datetime():
     """Test UTC conversion for naive datetime index."""
     df = pd.DataFrame({
@@ -391,6 +411,63 @@ def test_calendar_features_non_cyclical():
     assert 'month' in ws.df.columns
     assert 'hour_sin' not in ws.df.columns
     assert 'hour_cos' not in ws.df.columns
+
+
+def test_encode_wind_direction_preserves_original_by_default():
+    df = pd.DataFrame({
+        'ts_utc': pd.date_range('2024-01-01', periods=4, freq='h', tz='UTC'),
+        'wdir_deg': [0.0, 90.0, 180.0, np.nan],
+    }).set_index('ts_utc')
+
+    ws = WeatherSet(df).encode_wind_direction()
+
+    assert 'wdir_deg' in ws.df.columns
+    assert 'wdir_sin' in ws.df.columns
+    assert 'wdir_cos' in ws.df.columns
+    assert abs(ws.df['wdir_sin'].iloc[1] - 1.0) < 1e-12
+    assert abs(ws.df['wdir_cos'].iloc[2] + 1.0) < 1e-12
+    assert np.isnan(ws.df['wdir_sin'].iloc[3])
+
+
+def test_encode_wind_direction_can_drop_original():
+    df = pd.DataFrame({
+        'ts_utc': pd.date_range('2024-01-01', periods=1, freq='h', tz='UTC'),
+        'wdir_deg': [270.0],
+    }).set_index('ts_utc')
+
+    ws = WeatherSet(df).encode_wind_direction(drop_original=True)
+
+    assert 'wdir_deg' not in ws.df.columns
+    assert 'wdir_sin' in ws.df.columns
+    assert 'wdir_cos' in ws.df.columns
+
+
+def test_rolling_features_are_past_only_by_default():
+    df = pd.DataFrame({
+        'ts_utc': pd.date_range('2024-01-01', periods=4, freq='h', tz='UTC'),
+        'temp_c': [10.0, 20.0, 30.0, 40.0],
+    }).set_index('ts_utc')
+
+    ws = WeatherSet(df).rolling_features(['temp_c'], [2], stats=('mean', 'min', 'max'))
+
+    assert np.isnan(ws.df['temp_c_roll2_mean'].iloc[0])
+    assert ws.df['temp_c_roll2_mean'].iloc[1] == 10.0
+    assert ws.df['temp_c_roll2_mean'].iloc[2] == 15.0
+    assert ws.df['temp_c_roll2_min'].iloc[3] == 20.0
+    assert ws.df['temp_c_roll2_max'].iloc[3] == 30.0
+
+
+def test_rolling_features_validates_stats_and_windows():
+    df = pd.DataFrame({
+        'ts_utc': pd.date_range('2024-01-01', periods=2, freq='h', tz='UTC'),
+        'temp_c': [10.0, 20.0],
+    }).set_index('ts_utc')
+
+    with pytest.raises(ValueError, match="Unsupported rolling stats"):
+        WeatherSet(df.copy()).rolling_features(['temp_c'], [2], stats=('median',))
+
+    with pytest.raises(ValueError, match="positive integers"):
+        WeatherSet(df.copy()).rolling_features(['temp_c'], [0])
 
 
 def test_add_exogenous_tz_naive():

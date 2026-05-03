@@ -11,6 +11,7 @@ CANONICAL_VARS = [
     "wdir_deg",
     "gust_ms",
     "rain_mm",
+    "rain_rate_mmh",
     "solar_wm2",
     "uv_index",
 ]
@@ -25,6 +26,7 @@ PLAUSIBLE_BOUNDS = {
     "wdir_deg": (0.0, 360.0),
     "gust_ms": (0.0, 100.0),
     "rain_mm": (0.0, 1000.0),
+    "rain_rate_mmh": (0.0, 500.0),
     "solar_wm2": (0.0, 1500.0),
     "uv_index": (0.0, 20.0),
 }
