@@ -10,10 +10,11 @@ fields:
   temp_c: { col: "Temperature (°C)", unit: C }
   rh_pct:  { col: "RH (%)" }
   wspd_ms: { col: "Wind Speed (m/s)", unit: m/s }
+  rain_rate_mmh: { col: "Rain Rate (mm/h)", unit: mm/h }
 ```
 
 - `ts.col` is required; fields map to source column names and optional `unit` hints.
-- `ts.timezone` (v1.1.0+) is optional. When set, naive source timestamps are first localized
+- `ts.timezone` is optional. When set, naive source timestamps are first localized
   to that timezone and then converted to UTC. Tz-aware source timestamps are always converted
   to UTC and the hint is ignored. If the source timestamps are naive and no `timezone` is
   set, the value is assumed to already be UTC and a `UserWarning` is emitted.

@@ -36,7 +36,7 @@ Command-line script for automated processing:
 1. **Data Ingestion** - Automatic column mapping and unit normalization
 2. **Quality Control** - Range checks, spike/flatline detection, consistency checks
 3. **Derived Metrics** - Dew point, VPD, heat index, wind chill
-4. **Data Preparation** - Gap handling, resampling, calendar features
+4. **Data Preparation** - Gap handling, resampling, wind-direction encoding, rolling features, calendar features
 5. **ML Preparation** - Supervised datasets with lags, time-safe splits, scaling
 6. **Export** - Save to Parquet with reproducible parameters
 
@@ -146,10 +146,11 @@ flatline:
 import pandas as pd
 from metdatapy.mapper import Detector, Mapper
 from metdatapy.core import WeatherSet
-from metdatapy.mlprep import make_supervised, time_split, scale
+from metdatapy.io import read_csv
+from metdatapy.mlprep import make_supervised, time_split, fit_scaler, apply_scaler
 
 # Load and map data
-df = pd.read_csv("../data/sample_weather_2024.csv")
+df = read_csv("../data/sample_weather_2024.csv")
 detector = Detector()
 mapping = detector.detect(df)
 Mapper.save(mapping, "../data/mapping.yml")
@@ -157,9 +158,11 @@ Mapper.save(mapping, "../data/mapping.yml")
 # Create WeatherSet and process
 ws = WeatherSet.from_mapping(df, mapping)
 ws = ws.to_utc().normalize_units(mapping)
-ws = ws.qc_range().qc_spike().qc_flatline().qc_consistency().qc_any()
+ws = ws.qc_range().qc_spike().qc_flatline().qc_consistency()
 ws = ws.derive(['dew_point', 'vpd', 'heat_index', 'wind_chill'])
 ws = ws.insert_missing(frequency='10min').resample('1H')
+ws = ws.encode_wind_direction()
+ws = ws.rolling_features(['temp_c', 'rh_pct', 'wdir_sin', 'wdir_cos'], [3, 6])
 ws = ws.calendar_features(cyclical=True)
 
 # Get clean DataFrame
@@ -168,24 +171,27 @@ df_clean = ws.to_dataframe()
 # Prepare for ML
 df_ml = make_supervised(
     df_clean[['temp_c', 'rh_pct', 'pres_hpa', 'wspd_ms', 'dew_point_c', 
+              'wdir_sin', 'wdir_cos', 'temp_c_roll3_mean',
               'hour_sin', 'hour_cos', 'doy_sin', 'doy_cos']],
     targets=['temp_c'],
     lags=[1, 2, 3, 6, 12, 24],
-    target_horizons=[1, 3, 6],
+    horizons=[1, 3, 6],
     drop_na=True
 )
 
 # Time-safe split
-train, val, test = time_split(
+splits = time_split(
     df_ml,
     train_end=pd.Timestamp('2024-09-30', tz='UTC'),
     val_end=pd.Timestamp('2024-10-31', tz='UTC')
 )
+train, val, test = splits['train'], splits['val'], splits['test']
 
 # Scale features
-train_scaled, val_scaled, test_scaled, scaler_params = scale(
-    train, val, test, method='standard'
-)
+scaler_params = fit_scaler(train, method='standard')
+train_scaled = apply_scaler(train, scaler_params)
+val_scaled = apply_scaler(val, scaler_params)
+test_scaled = apply_scaler(test, scaler_params)
 
 # Export
 train_scaled.to_parquet("../data/processed/train.parquet")

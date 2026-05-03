@@ -121,11 +121,11 @@ Status: implemented in the current codebase and covered by regression tests.
 - Required feature:
   Read common real-world CSV encodings used by Weathercloud exports.
 - Resolution:
-  MetDataPy 1.1.0 `metdatapy.io.read_csv(path, ts_col=None, nrows=None)` detects common encodings before calling pandas.
+  MetDataPy 1.2.0 `metdatapy.io.read_csv(path, ts_col=None, nrows=None, delimiter=None)` detects common encodings and delimiters before calling pandas.
 - Forecasting pipeline usage:
   `weather_forecasting_pipeline.metdatapy_adapter.ingest_raw_weathercloud` continues to call MetDataPy `read_csv`.
 - Remaining gap:
-  Delimiter support is still incomplete and is tracked separately above.
+  None in the current v1.2.0 implementation.
 - Dissertation update required:
   No.
 

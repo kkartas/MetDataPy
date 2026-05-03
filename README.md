@@ -156,7 +156,7 @@ from metdatapy.mapper import Mapper
 from metdatapy.core import WeatherSet
 from metdatapy.mlprep import make_supervised, time_split, fit_scaler, apply_scaler
 
-mapping = Mapper.load("mapping.yml")  # mapping.yml may carry ts.timezone (v1.1.0+)
+mapping = Mapper.load("mapping.yml")  # mapping.yml may carry ts.timezone
 df = read_weathercloud_directory("path/to/weathercloud_exports", mapping)
 ws = WeatherSet(df).to_utc()
 ws = ws.insert_missing().fix_accum_rain().qc_range().qc_spike().qc_flatline().qc_consistency()

@@ -136,7 +136,7 @@ ws = WeatherSet(df)
 
 **Automatic Conversions:**
 - `time` dimension → `ts_utc` index
-- Naive on-disk time → tz-aware `UTC` DatetimeIndex (v1.1.0+)
+- Naive on-disk time → tz-aware `UTC` DatetimeIndex
 - int8 QC flags → boolean
 - Coordinate variables (lat/lon/alt) dropped from time series
 

@@ -41,10 +41,10 @@ df = read_weathercloud_directory("path/to/weathercloud_exports", "mapping.yml")
 ```python
 from metdatapy.mapper import Mapper
 from metdatapy.core import WeatherSet
-import pandas as pd
+from metdatapy.io import read_csv
 
 mapping = Mapper.load("mapping.yml")
-df = pd.read_csv("path/to/file.csv")
+df = read_csv("path/to/file.csv")
 ws = WeatherSet.from_mapping(df, mapping).to_utc().normalize_units(mapping)
 ws = ws.insert_missing().fix_accum_rain().qc_range()
 ws = ws.derive(["dew_point", "vpd"]).resample("1h")

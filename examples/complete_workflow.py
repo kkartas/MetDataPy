@@ -27,6 +27,7 @@ import numpy as np
 import pandas as pd
 
 from metdatapy.core import WeatherSet
+from metdatapy.io import read_csv
 from metdatapy.mapper import Detector, Mapper
 from metdatapy.mlprep import make_supervised, time_split, fit_scaler, apply_scaler
 
@@ -57,7 +58,7 @@ def main():
 
     # Step 1: Load raw data
     print("\n[1/7] Loading raw data...")
-    df_raw = pd.read_csv(DATA_PATH)
+    df_raw = read_csv(DATA_PATH)
     print(f"  [OK] Loaded {len(df_raw):,} records")
     print(f"  [OK] Columns: {list(df_raw.columns)}")
 
@@ -83,8 +84,8 @@ def main():
     # Step 4: Quality Control
     print("\n[4/7] Running quality control checks...")
     ws = ws.qc_range()
-    ws = ws.qc_spike()  # Uses default window=5, threshold=6.0
-    ws = ws.qc_flatline()  # Uses default window=5, tolerance=1e-6
+    ws = ws.qc_spike()  # Uses default window=9, threshold=6.0
+    ws = ws.qc_flatline()  # Uses default window=5, tolerance=0.0
     ws = ws.qc_consistency()
     
     df_qc = ws.to_dataframe()
@@ -111,6 +112,16 @@ def main():
     ws = ws.resample('1H')
     print(f"  [OK] Resampled to hourly: {len(ws.to_dataframe())} records")
     
+    ws = ws.encode_wind_direction()
+    print(f"  [OK] Added wind direction cyclic features (wdir_sin, wdir_cos)")
+
+    rolling_cols = [
+        col for col in ["temp_c", "rh_pct", "pres_hpa", "wspd_ms", "wdir_sin", "wdir_cos"]
+        if col in ws.to_dataframe().columns
+    ]
+    ws = ws.rolling_features(rolling_cols, windows=[3, 6])
+    print(f"  [OK] Added past-only rolling features for {len(rolling_cols)} columns")
+
     ws = ws.calendar_features(cyclical=True)
     print(f"  [OK] Added calendar features (hour, weekday, month, cyclical encodings)")
 
@@ -129,7 +140,9 @@ def main():
     available_cols = df_clean.columns.tolist()
     feature_cols = []
     for col in ['temp_c', 'rh_pct', 'pres_hpa', 'wspd_ms', 'solar_wm2',
-                'dew_point_c', 'vpd_kpa', 'hour_sin', 'hour_cos', 'doy_sin', 'doy_cos']:
+                'dew_point_c', 'vpd_kpa', 'wdir_sin', 'wdir_cos',
+                'temp_c_roll3_mean', 'temp_c_roll6_mean',
+                'hour_sin', 'hour_cos', 'doy_sin', 'doy_cos']:
         if col in available_cols:
             feature_cols.append(col)
     df_ml = df_clean[feature_cols].copy()

@@ -11,12 +11,13 @@ ensuring interoperability with tools like xarray, nco, cdo, and Panoply.
 
 import pandas as pd
 from metdatapy.core import WeatherSet
+from metdatapy.io import read_csv
 from metdatapy.mapper import Mapper
 
 # Load and process data
 print("Loading sample weather data...")
 mapping = Mapper.load("../data/mapping.yml")
-df = pd.read_csv("../data/sample_weather_2024.csv")
+df = read_csv("../data/sample_weather_2024.csv")
 
 # Create WeatherSet and process
 ws = (
@@ -36,6 +37,8 @@ ws = ws.derive(["dew_point", "vpd", "heat_index", "wind_chill"])
 
 # Resample to hourly
 ws = ws.resample("1H")
+ws = ws.encode_wind_direction()
+ws = ws.rolling_features(["temp_c", "rh_pct", "wdir_sin", "wdir_cos"], windows=[3, 6])
 
 print(f"Processed {len(ws.to_dataframe())} hourly records")
 
