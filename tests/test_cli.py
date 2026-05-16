@@ -309,6 +309,38 @@ flatline:
         ])
         assert result.exit_code == 0
         assert output_file.exists()
+
+    def test_qc_yaml_config_passes_causal_option(self, runner, tmp_path):
+        """Test that CLI config can request causal QC calculations."""
+        parquet_file = tmp_path / "spike_input.parquet"
+        df = pd.DataFrame(
+            {"temp_c": [10, 10, 10, 10, 100, 100, 100]},
+            index=pd.date_range("2024-01-01", periods=7, freq="h", tz="UTC", name="ts_utc"),
+        )
+        df.to_parquet(parquet_file)
+        config_file = tmp_path / "qc_config.yml"
+        config_file.write_text("""
+spike:
+  window: 5
+  thresh: 4.0
+  causal: true
+flatline:
+  window: 3
+  tol: 0.0
+  causal: true
+""")
+
+        output_file = tmp_path / "qc_output.parquet"
+        result = runner.invoke(main, [
+            "qc", "run",
+            "--in", str(parquet_file),
+            "--out", str(output_file),
+            "--config", str(config_file),
+        ])
+
+        assert result.exit_code == 0
+        out = pd.read_parquet(output_file)
+        assert bool(out["qc_temp_c_spike"].iloc[4]) is True
         
     def test_qc_with_json_config(self, runner, sample_parquet, tmp_path):
         """Test QC with JSON config file."""

@@ -16,6 +16,23 @@ from metdatapy.mlprep import time_split
 splits = time_split(sup, train_end=pd.Timestamp("2025-01-15T00:00Z"))
 ```
 
+For proportion-based chronological splits, use `time_split_by_fraction`:
+
+```python
+from metdatapy.mlprep import time_split_by_fraction
+
+splits = time_split_by_fraction(
+    sup,
+    train=0.70,
+    validation=0.15,
+    test=0.15,
+)
+
+metadata = splits["metadata"]  # fractions and row counts
+```
+
+Both helpers preserve chronological order and return non-overlapping `train`, `val`, and `test` frames.
+
 ## Scaling
 
 ```python

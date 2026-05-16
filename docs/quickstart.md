@@ -27,14 +27,20 @@ mdp ingest apply --csv path/to/file.csv --map mapping.yml --out raw.parquet
 mdp qc run --in raw.parquet --out clean.parquet --report qc_report.json
 ```
 
-CSV ingestion detects common delimiters, including semicolon-delimited Weathercloud exports. For
-multiple Weathercloud files, use the Python helper:
+CSV ingestion detects common delimiters and encodings, including semicolon-delimited Weathercloud exports encoded as UTF-16LE/BE without a BOM. For multiple Weathercloud files, use the Python helper:
 
 ```python
 from metdatapy import read_weathercloud_directory
 
-df = read_weathercloud_directory("path/to/weathercloud_exports", "mapping.yml")
+df, report = read_weathercloud_directory(
+    "path/to/weathercloud_exports",
+    "mapping.yml",
+    duplicate_policy="keep_first",
+    return_report=True,
+)
 ```
+
+Weathercloud ingestion localizes naive station timestamps with `nonexistent="shift_forward"` and `ambiguous="infer"` by default for DST transitions. If an isolated ambiguous fall-back row cannot be inferred from context, MetDataPy falls back to standard time deterministically.
 
 ## Python API
 

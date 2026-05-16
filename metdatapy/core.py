@@ -35,21 +35,47 @@ class WeatherSet:
         self.df = df
 
     @classmethod
-    def from_csv(cls, path: str, mapping: Dict) -> "WeatherSet":
+    def from_csv(
+        cls,
+        path: str,
+        mapping: Dict,
+        nonexistent: str = "raise",
+        ambiguous: str = "raise",
+    ) -> "WeatherSet":
         df = read_csv(path)
-        return cls.from_mapping(df, mapping)
+        return cls.from_mapping(
+            df,
+            mapping,
+            nonexistent=nonexistent,
+            ambiguous=ambiguous,
+        )
 
     @classmethod
-    def from_mapping(cls, df: pd.DataFrame, mapping: Dict) -> "WeatherSet":
+    def from_mapping(
+        cls,
+        df: pd.DataFrame,
+        mapping: Dict,
+        nonexistent: str = "raise",
+        ambiguous: str = "raise",
+    ) -> "WeatherSet":
         ts_cfg = mapping.get("ts") or {}
         ts_col = ts_cfg.get("col")
         if ts_col is None or ts_col not in df.columns:
             raise ValueError("Timestamp column not found in mapping or data")
         tz_hint = ts_cfg.get("timezone") or None
-        raw = pd.to_datetime(df[ts_col], errors="coerce", utc=False)
-        is_tz_aware = getattr(raw.dt, "tz", None) is not None
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=".*parsing datetimes with mixed time zones.*",
+                category=FutureWarning,
+            )
+            raw = pd.to_datetime(df[ts_col], errors="coerce", utc=False)
+        try:
+            is_tz_aware = getattr(raw.dt, "tz", None) is not None
+        except AttributeError:
+            is_tz_aware = True
         if not is_tz_aware and tz_hint is None:
-            import warnings
             warnings.warn(
                 "Timestamp column is naive and no 'timezone' is set under 'ts' in "
                 "the mapping; assuming UTC. Add a 'timezone' key (e.g. 'UTC', "
@@ -57,7 +83,12 @@ class WeatherSet:
                 UserWarning,
                 stacklevel=2,
             )
-        idx = ensure_datetime_utc(df[ts_col], tz_hint=tz_hint)
+        idx = ensure_datetime_utc(
+            df[ts_col],
+            tz_hint=tz_hint,
+            nonexistent=nonexistent,
+            ambiguous=ambiguous,
+        )
         df = df.copy()
         df.index = idx
         df.index.name = CANONICAL_INDEX
@@ -239,14 +270,26 @@ class WeatherSet:
         self.df = qc_range(self.df)
         return self
 
-    def qc_spike(self) -> "WeatherSet":
+    def qc_spike(
+        self,
+        cols: Optional[Iterable[str]] = None,
+        window: int = 9,
+        thresh: float = 6.0,
+        causal: bool = False,
+    ) -> "WeatherSet":
         from .qc import qc_spike
-        self.df = qc_spike(self.df)
+        self.df = qc_spike(self.df, cols=cols, window=window, thresh=thresh, causal=causal)
         return self
 
-    def qc_flatline(self) -> "WeatherSet":
+    def qc_flatline(
+        self,
+        cols: Optional[Iterable[str]] = None,
+        window: int = 5,
+        tol: float = 0.0,
+        causal: bool = False,
+    ) -> "WeatherSet":
         from .qc import qc_flatline
-        self.df = qc_flatline(self.df)
+        self.df = qc_flatline(self.df, cols=cols, window=window, tol=tol, causal=causal)
         return self
 
     def qc_consistency(self) -> "WeatherSet":

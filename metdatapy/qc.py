@@ -5,6 +5,12 @@ import pandas as pd
 from .utils import PLAUSIBLE_BOUNDS
 
 
+def _nanmedian_abs_deviation(values: np.ndarray) -> float:
+    values = values[~np.isnan(values)]
+    median = np.median(values)
+    return float(np.median(np.abs(values - median)))
+
+
 def qc_range(df: pd.DataFrame) -> pd.DataFrame:
     """
     Flag values outside climatologically plausible ranges.
@@ -60,6 +66,7 @@ def qc_spike(
     cols: Optional[Iterable[str]] = None,
     window: int = 9,
     thresh: float = 6.0,
+    causal: bool = False,
 ) -> pd.DataFrame:
     """
     Flag sudden spikes using rolling Median Absolute Deviation (MAD).
@@ -78,6 +85,8 @@ def qc_spike(
         Size of rolling window for computing local median and MAD
     thresh : float, default 6.0
         MAD-based z-score threshold. Values exceeding this are flagged as spikes
+    causal : bool, default False
+        If True, compute local statistics from previous observations only.
     
     Returns
     -------
@@ -120,8 +129,13 @@ def qc_spike(
         if col not in df.columns:
             continue
         s = pd.to_numeric(df[col], errors="coerce")
-        med = s.rolling(window, center=True, min_periods=3).median()
-        mad = (s - med).abs().rolling(window, center=True, min_periods=3).median()
+        if causal:
+            past = s.shift(1).rolling(window, min_periods=3)
+            med = past.median()
+            mad = past.apply(_nanmedian_abs_deviation, raw=True)
+        else:
+            med = s.rolling(window, center=True, min_periods=3).median()
+            mad = (s - med).abs().rolling(window, center=True, min_periods=3).median()
         z = (s - med).abs() / (1.4826 * mad + eps)
         df[f"qc_{col}_spike"] = z > thresh
     return df
@@ -132,6 +146,7 @@ def qc_flatline(
     cols: Optional[Iterable[str]] = None,
     window: int = 5,
     tol: float = 0.0,
+    causal: bool = False,
 ) -> pd.DataFrame:
     """
     Flag flatlines indicating stuck or frozen sensors.
@@ -150,6 +165,8 @@ def qc_flatline(
         Size of rolling window for computing local variance
     tol : float, default 0.0
         Variance tolerance. Values with variance ≤ tol are flagged as flatlines
+    causal : bool, default False
+        If True, compute rolling variance from the current and previous observations.
     
     Returns
     -------
@@ -184,7 +201,10 @@ def qc_flatline(
         if col not in df.columns:
             continue
         s = pd.to_numeric(df[col], errors="coerce")
-        var = s.rolling(window, center=True, min_periods=min_obs).var()
+        if causal:
+            var = s.rolling(window, min_periods=min_obs).var()
+        else:
+            var = s.rolling(window, center=True, min_periods=min_obs).var()
         # Only flag when variance is genuinely at or below tolerance.
         # NaN variance (insufficient valid observations) is NOT a flatline.
         df[f"qc_{col}_flatline"] = var.le(tol) & var.notna()

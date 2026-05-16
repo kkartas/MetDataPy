@@ -6,7 +6,7 @@ import numpy as np
 
 def _detect_encoding(path: str) -> str:
     """
-    Detect file encoding by trying common encodings.
+    Detect file encoding by checking byte markers and trying common encodings.
     
     Parameters
     ----------
@@ -18,6 +18,29 @@ def _detect_encoding(path: str) -> str:
     str
         Detected encoding name
     """
+    with open(path, "rb") as f:
+        raw = f.read(4096)
+
+    if raw.startswith(b"\xff\xfe"):
+        return "utf-16"
+    if raw.startswith(b"\xfe\xff"):
+        return "utf-16"
+    if raw.startswith(b"\xef\xbb\xbf"):
+        return "utf-8-sig"
+
+    if raw:
+        even = raw[0::2]
+        odd = raw[1::2]
+        even_nul_ratio = even.count(0) / len(even) if even else 0.0
+        odd_nul_ratio = odd.count(0) / len(odd) if odd else 0.0
+        nul_ratio = raw.count(0) / len(raw)
+        # UTF-16 CSV exports without a BOM are often ASCII-heavy, producing
+        # NUL bytes almost exclusively on one side of each two-byte code unit.
+        if nul_ratio > 0.20 and odd_nul_ratio > 0.60 and even_nul_ratio < 0.20:
+            return "utf-16le"
+        if nul_ratio > 0.20 and even_nul_ratio > 0.60 and odd_nul_ratio < 0.20:
+            return "utf-16be"
+
     encodings = ['utf-8', 'utf-16', 'latin-1', 'cp1252', 'iso-8859-1']
     
     for encoding in encodings:

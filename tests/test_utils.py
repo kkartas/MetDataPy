@@ -143,6 +143,48 @@ def test_ensure_datetime_utc_tz_hint_ignored_when_already_aware():
     assert result[0] == pd.Timestamp('2024-01-01 17:00', tz='UTC')
 
 
+def test_ensure_datetime_utc_shifts_nonexistent_local_time_forward():
+    """DST-invalid local timestamps can be shifted forward deterministically."""
+    sr = pd.Series(['2024-03-31 03:00'])
+
+    result = ensure_datetime_utc(sr, tz_hint='Europe/Athens', nonexistent='shift_forward')
+
+    assert result[0] == pd.Timestamp('2024-03-31 01:00', tz='UTC')
+
+
+def test_ensure_datetime_utc_infers_ambiguous_local_times():
+    """Repeated fall-back timestamps can be inferred when enough context exists."""
+    sr = pd.Series([
+        '2024-10-27 02:30',
+        '2024-10-27 03:30',
+        '2024-10-27 03:30',
+        '2024-10-27 04:30',
+    ])
+
+    result = ensure_datetime_utc(sr, tz_hint='Europe/Athens', ambiguous='infer')
+
+    assert result.tolist() == [
+        pd.Timestamp('2024-10-26 23:30', tz='UTC'),
+        pd.Timestamp('2024-10-27 00:30', tz='UTC'),
+        pd.Timestamp('2024-10-27 01:30', tz='UTC'),
+        pd.Timestamp('2024-10-27 02:30', tz='UTC'),
+    ]
+
+
+def test_ensure_datetime_utc_handles_mixed_offset_aware_strings():
+    sr = pd.Series([
+        '2024-01-01 00:00+02:00',
+        '2024-07-01 00:00+03:00',
+    ])
+
+    result = ensure_datetime_utc(sr)
+
+    assert result.tolist() == [
+        pd.Timestamp('2023-12-31 22:00', tz='UTC'),
+        pd.Timestamp('2024-06-30 21:00', tz='UTC'),
+    ]
+
+
 def test_infer_frequency_valid():
     """Test frequency inference with regular intervals."""
     from metdatapy.utils import infer_frequency

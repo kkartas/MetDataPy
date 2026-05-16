@@ -118,12 +118,12 @@ mkdocs serve
 Features
 - Canonical schema with UTC index and metric units
 - Ingestion from CSV with mapping autodetection and interactive mapping wizard
-- **Automatic encoding and delimiter detection** for CSV files, including semicolon-delimited Weathercloud exports
-- Weathercloud directory ingestion via `read_weathercloud_directory(...)`
+- **Automatic encoding and delimiter detection** for CSV files, including UTF-16LE/BE exports without a BOM and semicolon-delimited Weathercloud exports
+- Weathercloud directory ingestion via `read_weathercloud_directory(...)` with DST-safe localization and deterministic duplicate timestamp policies
 - Unit normalization, rain accumulation fix-up, gap insertion with `gap` flag
 - WeatherSet resampling/aggregation, wind-direction cyclic encoding, rolling features, calendar features, exogenous joins
 - Derived: dew point, VPD, heat index, wind chill
-- ML prep: supervised table builder (lags, horizons), time-safe split, scaling (Standard/MinMax/Robust)
+- ML prep: supervised table builder (lags, horizons), boundary- or fraction-based time-safe splits, scaling (Standard/MinMax/Robust)
 - Export: Parquet and CF-compliant NetCDF with metadata
 - **Performance:** Processes 1 year of 10-min data in <0.5s (see `benchmarks/`)
 
@@ -143,9 +143,11 @@ Example `qc_config.yml`:
 spike:
   window: 9
   thresh: 6.0
+  causal: true
 flatline:
   window: 5
   tol: 0.0
+  causal: true
 ```
 
 Python API example
@@ -154,12 +156,18 @@ import pandas as pd
 from metdatapy import read_weathercloud_directory
 from metdatapy.mapper import Mapper
 from metdatapy.core import WeatherSet
-from metdatapy.mlprep import make_supervised, time_split, fit_scaler, apply_scaler
+from metdatapy.mlprep import make_supervised, time_split_by_fraction, fit_scaler, apply_scaler
 
 mapping = Mapper.load("mapping.yml")  # mapping.yml may carry ts.timezone
-df = read_weathercloud_directory("path/to/weathercloud_exports", mapping)
+df, ingest_report = read_weathercloud_directory(
+    "path/to/weathercloud_exports",
+    mapping,
+    duplicate_policy="keep_first",
+    return_report=True,
+)
 ws = WeatherSet(df).to_utc()
-ws = ws.insert_missing().fix_accum_rain().qc_range().qc_spike().qc_flatline().qc_consistency()
+ws = ws.insert_missing().fix_accum_rain().qc_range()
+ws = ws.qc_spike(causal=True).qc_flatline(causal=True).qc_consistency()
 ws = ws.derive(["dew_point", "vpd", "heat_index", "wind_chill"]).resample("1H")
 ws = ws.encode_wind_direction().rolling_features(["temp_c", "rh_pct", "wdir_sin", "wdir_cos"], [3, 6])
 ws = ws.calendar_features()
@@ -170,7 +178,7 @@ ws.to_netcdf("weather_data.nc", metadata={"title": "Weather Station Data"},
              station_metadata={"station_id": "AWS001", "lat": 40.7, "lon": -74.0})
 
 sup = make_supervised(clean, targets=["temp_c"], horizons=[1,3], lags=[1,2,3])
-splits = time_split(sup, train_end=pd.Timestamp("2025-01-15T00:00Z"))
+splits = time_split_by_fraction(sup, train=0.70, validation=0.15, test=0.15)
 scaler = fit_scaler(splits["train"], method="standard")
 train_scaled = apply_scaler(splits["train"], scaler)
 ```
@@ -237,7 +245,7 @@ If you use MetDataPy in your research, please cite it:
   author = {Kyriakos Kartas},
   year = {2025},
   url = {https://github.com/kkartas/MetDataPy},
-  version = {1.2.0}
+  version = {1.3.0}
 }
 ```
 

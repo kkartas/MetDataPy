@@ -72,6 +72,40 @@ def test_read_csv_with_utf16(tmp_path):
     assert "temp_c" in result.columns
 
 
+def test_detect_encoding_utf16le_without_bom(tmp_path):
+    """Detect UTF-16LE CSV files that omit a byte-order mark."""
+    csv_file = tmp_path / "weathercloud_utf16le_no_bom.csv"
+    content = (
+        "Date (Europe/Athens);Temperature (C);Humidity (%)\n"
+        "2024-01-01 00:00;12.5;70\n"
+    )
+    csv_file.write_bytes(content.encode("utf-16le"))
+
+    encoding = _detect_encoding(str(csv_file))
+    result = read_csv(str(csv_file))
+
+    assert encoding == "utf-16le"
+    assert list(result.columns) == ["Date (Europe/Athens)", "Temperature (C)", "Humidity (%)"]
+    assert result.iloc[0]["Temperature (C)"] == 12.5
+
+
+def test_detect_encoding_utf16be_without_bom(tmp_path):
+    """Detect UTF-16BE CSV files that omit a byte-order mark."""
+    csv_file = tmp_path / "weathercloud_utf16be_no_bom.csv"
+    content = (
+        "Date (Europe/Athens);Temperature (C);Humidity (%)\n"
+        "2024-01-01 00:00;12.5;70\n"
+    )
+    csv_file.write_bytes(content.encode("utf-16be"))
+
+    encoding = _detect_encoding(str(csv_file))
+    result = read_csv(str(csv_file))
+
+    assert encoding == "utf-16be"
+    assert list(result.columns) == ["Date (Europe/Athens)", "Temperature (C)", "Humidity (%)"]
+    assert result.iloc[0]["Humidity (%)"] == 70
+
+
 def test_read_csv_detects_semicolon_delimiter(tmp_path):
     """Test semicolon-delimited CSV detection."""
     csv_file = tmp_path / "weather_semicolon.csv"

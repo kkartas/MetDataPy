@@ -2,7 +2,7 @@
 
 from .core import WeatherSet
 from .mapper import Mapper, Detector
-from .mlprep import make_supervised, time_split, fit_scaler, apply_scaler
+from .mlprep import make_supervised, time_split, time_split_by_fraction, fit_scaler, apply_scaler
 from .qc import qc_range, qc_spike, qc_flatline, qc_consistency
 from .weathercloud import read_weathercloud_csv, read_weathercloud_directory
 
@@ -12,6 +12,7 @@ __all__ = [
     "Detector",
     "make_supervised",
     "time_split",
+    "time_split_by_fraction",
     "fit_scaler",
     "apply_scaler",
     "qc_range",
@@ -22,5 +23,5 @@ __all__ = [
     "read_weathercloud_directory",
 ]
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 

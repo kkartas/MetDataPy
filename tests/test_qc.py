@@ -30,6 +30,39 @@ def test_qc_spike_and_flatline():
     assert out2["qc_temp_c_flatline"].iloc[1]
 
 
+def test_qc_spike_causal_does_not_change_when_future_values_change():
+    base = pd.DataFrame({"temp_c": [10, 10, 10, 10, 100, 10, 10]})
+    changed_future = base.copy()
+    changed_future.loc[5:6, "temp_c"] = 100
+
+    out = qc_spike(base.copy(), window=5, thresh=4.0, causal=True)
+    changed = qc_spike(changed_future.copy(), window=5, thresh=4.0, causal=True)
+
+    assert bool(out["qc_temp_c_spike"].iloc[4]) is True
+    assert bool(changed["qc_temp_c_spike"].iloc[4]) is True
+
+
+def test_qc_flatline_causal_does_not_change_when_future_values_change():
+    base = pd.DataFrame({"temp_c": [20, 20, 20, 20, 20, 20, 20]})
+    changed_future = base.copy()
+    changed_future.loc[5:6, "temp_c"] = [21, 22]
+
+    out = qc_flatline(base.copy(), window=3, tol=0.0, causal=True)
+    changed = qc_flatline(changed_future.copy(), window=3, tol=0.0, causal=True)
+
+    assert bool(out["qc_temp_c_flatline"].iloc[4]) is True
+    assert bool(changed["qc_temp_c_flatline"].iloc[4]) is True
+
+
+def test_qc_flatline_causal_includes_current_observation():
+    df = pd.DataFrame({"temp_c": [20, 20, 20, 20, 25, 26, 27]})
+
+    out = qc_flatline(df.copy(), window=3, tol=0.0, causal=True)
+
+    assert bool(out["qc_temp_c_flatline"].iloc[3]) is True
+    assert bool(out["qc_temp_c_flatline"].iloc[4]) is False
+
+
 ## --- v1.0.2 regressions: Task 5 (flatline false positives) ---
 
 

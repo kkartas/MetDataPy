@@ -732,6 +732,25 @@ def test_from_mapping_tz_aware_timestamps_no_warning():
     assert not any("timezone" in m.lower() for m in msgs)
 
 
+def test_from_mapping_handles_mixed_offset_aware_timestamp_strings():
+    """Mixed offset-aware strings should be converted to UTC during mapping."""
+    df = pd.DataFrame({
+        'timestamp': ['2024-01-01 00:00+02:00', '2024-07-01 00:00+03:00'],
+        'temperature': [20.0, 21.0],
+    })
+    mapping = {
+        'ts': {'col': 'timestamp'},
+        'fields': {'temp_c': {'col': 'temperature', 'unit': 'C'}},
+    }
+
+    ws = WeatherSet.from_mapping(df, mapping)
+
+    assert ws.df.index.tolist() == [
+        pd.Timestamp('2023-12-31 22:00', tz='UTC'),
+        pd.Timestamp('2024-06-30 21:00', tz='UTC'),
+    ]
+
+
 def test_from_mapping_empty_timezone_string_treated_as_missing():
     """Empty-string timezone must behave like omitted timezone (warn + UTC)."""
     import warnings

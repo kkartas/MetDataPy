@@ -3,7 +3,13 @@
 import pandas as pd
 import pytest
 import json
-from metdatapy.mlprep import make_supervised, time_split, fit_scaler, apply_scaler
+from metdatapy.mlprep import (
+    make_supervised,
+    time_split,
+    time_split_by_fraction,
+    fit_scaler,
+    apply_scaler,
+)
 
 
 def test_make_supervised():
@@ -39,6 +45,33 @@ def test_time_split():
     assert len(splits['train']) > 0
     assert len(splits['val']) > 0
     assert len(splits['test']) > 0
+
+
+def test_time_split_by_fraction_three_way_chronological():
+    df = pd.DataFrame(
+        {'value': range(20)},
+        index=pd.date_range('2024-01-01', periods=20, freq='h', tz='UTC'),
+    )
+
+    splits = time_split_by_fraction(df, train=0.5, validation=0.25, test=0.25)
+
+    assert list(splits.keys()) == ['train', 'val', 'test', 'metadata']
+    assert len(splits['train']) == 10
+    assert len(splits['val']) == 5
+    assert len(splits['test']) == 5
+    assert splits['train'].index.max() < splits['val'].index.min()
+    assert splits['val'].index.max() < splits['test'].index.min()
+    assert splits['metadata']['counts'] == {'train': 10, 'val': 5, 'test': 5}
+
+
+def test_time_split_by_fraction_requires_sorted_datetime_index():
+    df = pd.DataFrame(
+        {'value': [1, 2]},
+        index=pd.to_datetime(['2024-01-01 01:00', '2024-01-01 00:00']),
+    )
+
+    with pytest.raises(ValueError, match='sorted DatetimeIndex'):
+        time_split_by_fraction(df)
 
 
 def test_fit_and_apply_scaler_standard():

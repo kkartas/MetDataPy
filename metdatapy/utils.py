@@ -1,4 +1,5 @@
 import datetime as _dt
+import warnings
 from typing import Dict, Optional
 
 import pandas as pd
@@ -31,11 +32,41 @@ PLAUSIBLE_BOUNDS = {
     "uv_index": (0.0, 20.0),
 }
 
-def ensure_datetime_utc(series: pd.Series, tz_hint: Optional[str] = None) -> pd.DatetimeIndex:
-    di = pd.to_datetime(series, errors="coerce", utc=False)
-    if di.dt.tz is None:
+def ensure_datetime_utc(
+    series: pd.Series,
+    tz_hint: Optional[str] = None,
+    nonexistent: str = "raise",
+    ambiguous: str = "raise",
+) -> pd.DatetimeIndex:
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message=".*parsing datetimes with mixed time zones.*",
+            category=FutureWarning,
+        )
+        di = pd.to_datetime(series, errors="coerce", utc=False)
+    try:
+        tz = di.dt.tz
+    except AttributeError:
+        return pd.DatetimeIndex(pd.to_datetime(series, errors="coerce", utc=True))
+    if tz is None:
         if tz_hint:
-            di = di.dt.tz_localize(tz_hint).dt.tz_convert("UTC")
+            try:
+                localized = di.dt.tz_localize(
+                    tz_hint,
+                    nonexistent=nonexistent,
+                    ambiguous=ambiguous,
+                )
+            except Exception as exc:
+                if ambiguous == "infer" and exc.__class__.__name__ == "AmbiguousTimeError":
+                    localized = di.dt.tz_localize(
+                        tz_hint,
+                        nonexistent=nonexistent,
+                        ambiguous=False,
+                    )
+                else:
+                    raise
+            di = localized.dt.tz_convert("UTC")
         else:
             di = di.dt.tz_localize("UTC")
     else:

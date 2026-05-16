@@ -157,6 +157,83 @@ def time_split(
     return {"train": train, "val": val, "test": test}
 
 
+def _split_counts_by_fraction(
+    n_rows: int,
+    fractions: Tuple[float, float, float],
+    min_rows_per_split: int,
+) -> Tuple[int, int, int]:
+    if min_rows_per_split < 0:
+        raise ValueError("min_rows_per_split must be non-negative")
+    if any(frac < 0 for frac in fractions):
+        raise ValueError("Split fractions must be non-negative")
+    if not np.isclose(sum(fractions), 1.0):
+        raise ValueError("Split fractions must sum to 1.0")
+
+    non_empty = [idx for idx, frac in enumerate(fractions) if frac > 0]
+    if n_rows < len(non_empty) * min_rows_per_split:
+        raise ValueError("Not enough rows to satisfy min_rows_per_split")
+
+    raw = np.array(fractions, dtype=float) * n_rows
+    counts = np.floor(raw).astype(int)
+    counts[np.array(fractions) == 0] = 0
+
+    remainder = n_rows - int(counts.sum())
+    order = sorted(range(3), key=lambda idx: raw[idx] - counts[idx], reverse=True)
+    for idx in order:
+        if remainder == 0:
+            break
+        if fractions[idx] > 0:
+            counts[idx] += 1
+            remainder -= 1
+
+    for idx in non_empty:
+        while counts[idx] < min_rows_per_split:
+            donors = [
+                donor
+                for donor in range(3)
+                if donor != idx and counts[donor] > min_rows_per_split
+            ]
+            if not donors:
+                raise ValueError("Not enough rows to satisfy min_rows_per_split")
+            donor = max(donors, key=lambda donor_idx: counts[donor_idx])
+            counts[donor] -= 1
+            counts[idx] += 1
+
+    return int(counts[0]), int(counts[1]), int(counts[2])
+
+
+def time_split_by_fraction(
+    df: pd.DataFrame,
+    train: float = 0.70,
+    validation: float = 0.15,
+    test: float = 0.15,
+    min_rows_per_split: int = 1,
+) -> Dict[str, object]:
+    """Split sorted time-series data into chronological fractions."""
+    if not isinstance(df.index, pd.DatetimeIndex) or not df.index.is_monotonic_increasing:
+        raise ValueError("time_split_by_fraction requires a sorted DatetimeIndex")
+
+    train_count, val_count, test_count = _split_counts_by_fraction(
+        len(df),
+        (train, validation, test),
+        min_rows_per_split,
+    )
+
+    train_df = df.iloc[:train_count]
+    val_df = df.iloc[train_count:train_count + val_count]
+    test_df = df.iloc[train_count + val_count:train_count + val_count + test_count]
+
+    return {
+        "train": train_df,
+        "val": val_df,
+        "test": test_df,
+        "metadata": {
+            "fractions": {"train": train, "val": validation, "test": test},
+            "counts": {"train": train_count, "val": val_count, "test": test_count},
+        },
+    }
+
+
 @dataclass
 class ScalerParams:
     method: str

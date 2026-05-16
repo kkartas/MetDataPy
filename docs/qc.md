@@ -38,13 +38,16 @@ Flags sudden spikes using a rolling Median Absolute Deviation (MAD) z-score. Mor
 3. `z = |x − median| / (1.4826 × MAD + ε)`
 4. Flag where `z > thresh` (default 6.0)
 
+By default, spike detection uses the historical centered rolling window. For ML feature generation, pass `causal=True` to compute the local median and MAD from previous observations only, so each flag depends only on data available at that timestamp.
+
 Output columns: `qc_<var>_spike`.
 
 ```python
 from metdatapy.qc import qc_spike
 df = qc_spike(df, window=9, thresh=6.0)
+df = qc_spike(df, window=9, thresh=6.0, causal=True)
 # or
-ws.qc_spike()
+ws.qc_spike(causal=True)
 ```
 
 ## Flatline detection — `qc_flatline`
@@ -54,6 +57,7 @@ Flags stuck or frozen sensor readings — periods with suspiciously low rolling 
 **Behaviour (v1.0.2):**
 - Uses `min_periods = max(3, window // 2 + 1)` so short series and NaN-dominated windows are not flagged.
 - Only flags when variance is genuinely at or below `tol` **and** is not NaN. A window with insufficient valid observations produces NaN variance, which is not treated as zero.
+- Pass `causal=True` to compute rolling variance from the current and previous observations only for time-safe ML features.
 
 Output columns: `qc_<var>_flatline`.
 
@@ -61,8 +65,9 @@ Output columns: `qc_<var>_flatline`.
 from metdatapy.qc import qc_flatline
 df = qc_flatline(df, window=5, tol=0.0)   # tol=0 flags perfect flatlines only
 df = qc_flatline(df, window=5, tol=1e-6)  # flag near-constant values
+df = qc_flatline(df, window=5, tol=0.0, causal=True)
 # or
-ws.qc_flatline()
+ws.qc_flatline(causal=True)
 ```
 
 ## Consistency checks — `qc_consistency`

@@ -11,6 +11,16 @@ from .core import WeatherSet
 from .io import read_csv, to_parquet
 
 
+def _config_bool(value, default: bool = False) -> bool:
+     if value is None:
+          return default
+     if isinstance(value, bool):
+          return value
+     if isinstance(value, str):
+          return value.strip().lower() in {"1", "true", "yes", "on"}
+     return bool(value)
+
+
 @click.group()
 def main():
      """MetDataPy command-line interface."""
@@ -154,8 +164,18 @@ def qc_run(in_path: str, out_path: str, report_path: Optional[str], config_path:
      from .qc import qc_spike as _sp, qc_flatline as _fl
      sp = cfg.get("spike", {}) if isinstance(cfg, dict) else {}
      fl = cfg.get("flatline", {}) if isinstance(cfg, dict) else {}
-     ws.df = _sp(ws.df, window=int(sp.get("window", 9)), thresh=float(sp.get("thresh", 6.0)))
-     ws.df = _fl(ws.df, window=int(fl.get("window", 5)), tol=float(fl.get("tol", 0.0)))
+     ws.df = _sp(
+          ws.df,
+          window=int(sp.get("window", 9)),
+          thresh=float(sp.get("thresh", 6.0)),
+          causal=_config_bool(sp.get("causal"), False),
+     )
+     ws.df = _fl(
+          ws.df,
+          window=int(fl.get("window", 5)),
+          tol=float(fl.get("tol", 0.0)),
+          causal=_config_bool(fl.get("causal"), False),
+     )
      ws = ws.qc_consistency()
      out_df = ws.to_dataframe()
      out_df.to_parquet(out_path)
