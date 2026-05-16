@@ -70,11 +70,19 @@ class WeatherSet:
                 message=".*parsing datetimes with mixed time zones.*",
                 category=FutureWarning,
             )
-            raw = pd.to_datetime(df[ts_col], errors="coerce", utc=False)
-        try:
-            is_tz_aware = getattr(raw.dt, "tz", None) is not None
-        except AttributeError:
+            try:
+                raw = pd.to_datetime(df[ts_col], errors="coerce", utc=False)
+            except ValueError as exc:
+                if "mixed timezones detected" not in str(exc).lower():
+                    raise
+                raw = None
+        if raw is None:
             is_tz_aware = True
+        else:
+            try:
+                is_tz_aware = getattr(raw.dt, "tz", None) is not None
+            except AttributeError:
+                is_tz_aware = True
         if not is_tz_aware and tz_hint is None:
             warnings.warn(
                 "Timestamp column is naive and no 'timezone' is set under 'ts' in "

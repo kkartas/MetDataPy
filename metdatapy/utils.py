@@ -32,6 +32,15 @@ PLAUSIBLE_BOUNDS = {
     "uv_index": (0.0, 20.0),
 }
 
+def _is_mixed_timezone_parse_error(exc: Exception) -> bool:
+    return "mixed timezones detected" in str(exc).lower()
+
+
+def _is_ambiguous_infer_error(exc: Exception) -> bool:
+    message = str(exc).lower()
+    return exc.__class__.__name__ == "AmbiguousTimeError" or "cannot infer dst time" in message
+
+
 def ensure_datetime_utc(
     series: pd.Series,
     tz_hint: Optional[str] = None,
@@ -44,7 +53,12 @@ def ensure_datetime_utc(
             message=".*parsing datetimes with mixed time zones.*",
             category=FutureWarning,
         )
-        di = pd.to_datetime(series, errors="coerce", utc=False)
+        try:
+            di = pd.to_datetime(series, errors="coerce", utc=False)
+        except ValueError as exc:
+            if _is_mixed_timezone_parse_error(exc):
+                return pd.DatetimeIndex(pd.to_datetime(series, errors="coerce", utc=True))
+            raise
     try:
         tz = di.dt.tz
     except AttributeError:
@@ -58,7 +72,7 @@ def ensure_datetime_utc(
                     ambiguous=ambiguous,
                 )
             except Exception as exc:
-                if ambiguous == "infer" and exc.__class__.__name__ == "AmbiguousTimeError":
+                if ambiguous == "infer" and _is_ambiguous_infer_error(exc):
                     localized = di.dt.tz_localize(
                         tz_hint,
                         nonexistent=nonexistent,
